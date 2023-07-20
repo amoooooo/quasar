@@ -1,7 +1,6 @@
 package coffee.amo.quasar.emitters;
 
-import coffee.amo.quasar.client.QuasarParticleData;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.forces.AbstractParticleForce;
+import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;

@@ -1,8 +1,8 @@
 package coffee.amo.quasar.entity;
 
 import coffee.amo.quasar.emitters.ParticleSystemManager;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.forces.PointAttractorForce;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.forces.VortexForce;
+import coffee.amo.quasar.emitters.modules.particle.update.forces.PointAttractorForce;
+import coffee.amo.quasar.emitters.modules.particle.update.forces.VortexForce;
 import coffee.amo.quasar.registry.EntityRegistry;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.EntityType;
@@ -20,6 +20,9 @@ import net.minecraftforge.network.NetworkHooks;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * TEST ENTITY
+ */
 public class BlackHoleEntity extends LivingEntity {
     public PointAttractorForce attractorForce;
     public VortexForce vortexForce;

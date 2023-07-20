@@ -22,7 +22,9 @@ import team.lodestar.lodestone.systems.easing.Easing;
 
 import java.util.List;
 import java.util.function.Supplier;
-
+/**
+ * TEST ENTITY
+ */
 public class SlashEntity extends LivingEntity {
     public SlashEntity(Level pLevel) {
         this(EntityRegistry.SLASH_ENTITY.get(), pLevel);

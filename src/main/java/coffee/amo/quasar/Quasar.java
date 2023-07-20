@@ -1,12 +1,9 @@
 package coffee.amo.quasar;
 
-import coffee.amo.quasar.client.QuasarParticleData;
 import coffee.amo.quasar.entity.BlackHoleEntity;
 import coffee.amo.quasar.entity.SlashEntity;
 import coffee.amo.quasar.net.DNDNetworking;
 import coffee.amo.quasar.net.packets.CubeParticlePacket;
-import coffee.amo.quasar.emitters.ParticleContext;
-import coffee.amo.quasar.emitters.ParticleEmitter;
 import coffee.amo.quasar.emitters.ParticleSystemManager;
 import coffee.amo.quasar.registry.AllParticleTypes;
 import coffee.amo.quasar.registry.EntityRegistry;
@@ -15,7 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwordItem;

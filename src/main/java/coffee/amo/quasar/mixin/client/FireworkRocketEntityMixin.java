@@ -1,7 +1,5 @@
 package coffee.amo.quasar.mixin.client;
 
-import coffee.amo.quasar.ParticleRegistry;
-import coffee.amo.quasar.emitters.ParticleContext;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;

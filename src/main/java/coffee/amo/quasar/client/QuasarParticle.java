@@ -1,16 +1,16 @@
 package coffee.amo.quasar.client;
 
-import coffee.amo.quasar.emitters.modules.particle_modules.init.InitModule;
-import coffee.amo.quasar.emitters.modules.particle_modules.render.RenderData;
-import coffee.amo.quasar.emitters.modules.particle_modules.render.TrailModule;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.collsion.CollisionModule;
+import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
+import coffee.amo.quasar.emitters.modules.particle.render.RenderData;
+import coffee.amo.quasar.emitters.modules.particle.render.TrailModule;
+import coffee.amo.quasar.emitters.modules.particle.update.collsion.CollisionModule;
 import coffee.amo.quasar.registry.AllSpecialTextures;
 import coffee.amo.quasar.QuasarClient;
 import coffee.amo.quasar.emitters.ParticleContext;
-import coffee.amo.quasar.emitters.modules.particle_modules.render.TrailSettings;
-import coffee.amo.quasar.emitters.modules.particle_modules.render.RenderModule;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.UpdateModule;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.forces.AbstractParticleForce;
+import coffee.amo.quasar.emitters.modules.particle.render.TrailSettings;
+import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
+import coffee.amo.quasar.emitters.modules.particle.update.UpdateModule;
+import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import coffee.amo.quasar.util.MathUtil;
 import cofh.core.util.helpers.vfx.Color;
 import cofh.core.util.helpers.vfx.RenderTypes;
@@ -313,9 +313,9 @@ public class QuasarParticle extends Particle {
             }
             for(int t = 0; t < renderData.getTrails().size(); t++){
                 TrailSettings trail = renderData.getTrails().get(t);
+                if(trail.getTrailFrequency() == 0) continue;
                 Vector4f[] trimmedPositions = new Vector4f[trail.getTrailLength()];
                 System.arraycopy(previousPositions, 0, trimmedPositions, 0, trail.getTrailLength());
-                if(trail.getTrailFrequency() == 0) continue;
                 Vector4f[] trailPoints = new Vector4f[trimmedPositions.length / trail.getTrailFrequency()];
                 for (int i = 0; i < trailPoints.length; i++) {
                     trailPoints[i] = trail.getTrailPointModifier().apply(trimmedPositions[i * trail.getTrailFrequency()], i, new Vec3(xd, yd, zd));

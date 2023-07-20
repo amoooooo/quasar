@@ -1,17 +1,13 @@
 package coffee.amo.quasar.emitters;
 
 import coffee.amo.quasar.client.QuasarParticleData;
-import coffee.amo.quasar.emitters.modules.emitter_modules.EmitterModule;
-import coffee.amo.quasar.emitters.modules.emitter_modules.settings.EmitterSettingsModule;
-import coffee.amo.quasar.util.TriFunction;
-import net.minecraft.core.particles.ParticleOptions;
+import coffee.amo.quasar.emitters.modules.emitter.EmitterModule;
+import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsModule;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /*
  *  TODO:

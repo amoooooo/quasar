@@ -5,15 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import coffee.amo.quasar.emitters.modules.emitter_modules.settings.EmissionParticleSettings;
-import coffee.amo.quasar.emitters.modules.particle_modules.init.InitModule;
-import coffee.amo.quasar.emitters.modules.particle_modules.render.RenderModule;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.UpdateModule;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.collsion.CollisionModule;
+import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
+import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
+import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
+import coffee.amo.quasar.emitters.modules.particle.update.UpdateModule;
+import coffee.amo.quasar.emitters.modules.particle.update.collsion.CollisionModule;
 import coffee.amo.quasar.registry.AllParticleTypes;
 import coffee.amo.quasar.emitters.ICustomParticleData;
 import coffee.amo.quasar.emitters.ParticleContext;
-import coffee.amo.quasar.emitters.modules.particle_modules.update.forces.AbstractParticleForce;
+import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
@@ -26,6 +26,25 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+/**
+ * Data that is passed to each particle when it is created.
+ * @see ICustomParticleData
+ * @see QuasarParticle
+ * @see ParticleContext
+ * <p>
+ * This class is used to store all the data that is passed to each particle when it is created.
+ * This includes the particle settings, whether or not the particle should collide with blocks,
+ * whether or not the particle should face its velocity, and the list of sub emitters.
+ * This class also stores the list of particle modules that are applied to each particle.
+ * These modules are used to modify the particle's behavior.
+ * The list of particle modules includes init modules, render modules, update modules, and collision modules.
+ * Init modules are applied when the particle is created.
+ * Render modules are applied when the particle is rendered.
+ * Update modules are applied every tick.
+ * Collision modules are applied when the particle collides with a block.
+ * This class also stores the list of particle forces that are applied to each particle.
+ * These forces are used to modify the particle's velocity.
+ */
 public class QuasarParticleData implements ICustomParticleData<QuasarParticleData>, ParticleOptions {
     EmissionParticleSettings particleSettings;
     public boolean shouldCollide = true;
