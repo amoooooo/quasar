@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "coffee.amo.quasar.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "quasar.refmap.json",
+  "mixins": [
+    "client.FireworkRocketEntityMixin"
+  ],
+  "client": [
+    "client.CameraMixin",
+    "client.ParticleAccessor",
+    "client.ParticleEngineAccessor",
+    "client.ParticleMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
