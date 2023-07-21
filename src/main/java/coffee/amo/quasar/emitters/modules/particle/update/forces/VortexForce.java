@@ -1,7 +1,11 @@
 package coffee.amo.quasar.emitters.modules.particle.update.forces;
 
 import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.emitters.modules.ModuleType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -16,9 +20,39 @@ import java.util.function.Supplier;
  *     The falloff parameter determines how quickly the force falls off with distance. (unused)
  */
 public class VortexForce extends AbstractParticleForce {
+    public static final Codec<VortexForce> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Vec3.CODEC.fieldOf("vortex_axis").forGetter(VortexForce::getVortexAxis),
+                    Vec3.CODEC.fieldOf("vortex_center").forGetter(VortexForce::getVortexCenter),
+                    Codec.FLOAT.fieldOf("range").forGetter(VortexForce::getRange),
+                    Codec.FLOAT.fieldOf("strength").forGetter(VortexForce::getStrength),
+                    Codec.FLOAT.fieldOf("falloff").forGetter(VortexForce::getFalloff)
+            ).apply(instance, VortexForce::new)
+            );
     private Vec3 vortexAxis;
+    public Vec3 getVortexAxis() {
+        return vortexAxis;
+    }
+    public void setVortexAxis(Vec3 vortexAxis) {
+        this.vortexAxis = vortexAxis;
+    }
     private Supplier<Vec3> vortexCenter;
+    public Vec3 getVortexCenter() {
+        return vortexCenter.get();
+    }
+    public void setVortexCenter(Supplier<Vec3> vortexCenter) {
+        this.vortexCenter = vortexCenter;
+    }
+    public void setVortexCenter(Vec3 vortexCenter) {
+        this.vortexCenter = () -> vortexCenter;
+    }
     private float range;
+    public float getRange() {
+        return range;
+    }
+    public void setRange(float range) {
+        this.range = range;
+    }
 
     public VortexForce(Vec3 vortexAxis, Vec3 vortexCenter, float range, float strength, float decay) {
         this.vortexAxis = vortexAxis;
@@ -48,5 +82,11 @@ public class VortexForce extends AbstractParticleForce {
             Vec3 particleToCenterOnAxisUnitCrossVortexAxisUnitScaled = particleToCenterOnAxisUnitCrossVortexAxisUnit.scale(strength);
             particle.addForce(particleToCenterOnAxisUnitCrossVortexAxisUnitScaled);
         }
+    }
+
+    @NotNull
+    @Override
+    public ModuleType<?> getType() {
+        return ModuleType.VORTEX;
     }
 }

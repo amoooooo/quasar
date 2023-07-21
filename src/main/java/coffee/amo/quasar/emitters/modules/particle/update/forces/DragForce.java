@@ -1,6 +1,9 @@
 package coffee.amo.quasar.emitters.modules.particle.update.forces;
 
 import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.emitters.modules.ModuleType;
+import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A force that applies a drag force to a particle.
@@ -13,12 +16,18 @@ import coffee.amo.quasar.client.QuasarParticle;
  *     The falloff parameter is unused.
  */
 public class DragForce extends AbstractParticleForce {
-    public DragForce(float strength, float decay) {
+    public static final Codec<DragForce> CODEC = Codec.FLOAT.fieldOf("strength").xmap(DragForce::new, DragForce::getStrength).codec();
+    public DragForce(float strength) {
         this.strength = strength;
-        this.falloff = decay;
     }
     @Override
     public void applyForce(QuasarParticle particle) {
         particle.modifyForce(strength);
+    }
+
+    @NotNull
+    @Override
+    public ModuleType<?> getType() {
+        return ModuleType.DRAG;
     }
 }

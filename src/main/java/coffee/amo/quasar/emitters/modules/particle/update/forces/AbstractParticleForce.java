@@ -13,4 +13,20 @@ public abstract class AbstractParticleForce implements UpdateModule {
     public void run(QuasarParticle particle) {
         applyForce(particle);
     }
+
+    public float getStrength() {
+        return strength;
+    }
+
+    public void setStrength(float strength) {
+        this.strength = strength;
+    }
+
+    public float getFalloff() {
+        return falloff;
+    }
+
+    public void setFalloff(float falloff) {
+        this.falloff = falloff;
+    }
 }

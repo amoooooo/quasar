@@ -1,6 +1,8 @@
 package coffee.amo.quasar.emitters.modules.particle.update.fields;
 
 import coffee.amo.quasar.util.FastNoiseLite;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Objects;
@@ -16,9 +18,24 @@ import java.util.function.Function;
  *     If no vector function is provided, a default one is used that generates a vector based on the noise value.
  */
 public class VectorField {
+    public static Codec<VectorField> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    FastNoiseLite.CODEC.fieldOf("noise").forGetter(VectorField::getNoise),
+                    Codec.FLOAT.fieldOf("strength").forGetter(VectorField::getStrength)
+            ).apply(instance, VectorField::new)
+    );
     public FastNoiseLite noise;
+    public FastNoiseLite getNoise() {
+        return noise;
+    }
     public float strength;
+    public float getStrength() {
+        return strength;
+    }
     public Function<Vec3, Vec3> vectorFunction;
+    private VectorField(FastNoiseLite noise, float strength) {
+        this(noise, strength, null);
+    }
 
     public VectorField(FastNoiseLite noise, float strength, Function<Vec3, Vec3> vectorFunction) {
         this.noise = noise;

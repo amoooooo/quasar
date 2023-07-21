@@ -1,9 +1,11 @@
 package coffee.amo.quasar.emitters.modules.particle.init.forces;
 
 import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 public class InitialVelocityForce extends AbstractParticleForce implements InitModule {
     Vec3 velocityDirection;
@@ -23,5 +25,11 @@ public class InitialVelocityForce extends AbstractParticleForce implements InitM
     @Override
     public void run(QuasarParticle particle) {
         applyForce(particle);
+    }
+
+    @NotNull
+    @Override
+    public ModuleType<?> getType() {
+        return null;
     }
 }

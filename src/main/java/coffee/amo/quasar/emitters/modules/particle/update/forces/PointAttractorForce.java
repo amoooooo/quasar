@@ -1,7 +1,11 @@
 package coffee.amo.quasar.emitters.modules.particle.update.forces;
 
 import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.emitters.modules.ModuleType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -27,9 +31,33 @@ import java.util.function.Supplier;
  * </p>
  */
 public class PointAttractorForce extends AbstractParticleForce {
+    public static final Codec<PointAttractorForce> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Vec3.CODEC.fieldOf("position").forGetter(p -> p.getPosition().get()),
+                    Codec.FLOAT.fieldOf("range").forGetter(PointAttractorForce::getRange),
+                    Codec.FLOAT.fieldOf("strength").forGetter(PointAttractorForce::getStrength),
+                    Codec.FLOAT.fieldOf("falloff").forGetter(PointAttractorForce::getFalloff),
+                    Codec.BOOL.fieldOf("strengthByDistance").forGetter(PointAttractorForce::isStrengthByDistance)
+            ).apply(instance, PointAttractorForce::new)
+            );
     Supplier<Vec3> position;
+    public Supplier<Vec3> getPosition() {
+        return position;
+    }
+    public void setPosition(Supplier<Vec3> position) {
+        this.position = position;
+    }
+    public void setPosition(Vec3 position) {
+        this.position = () -> position;
+    }
     float range;
+    public float getRange() {
+        return range;
+    }
     boolean strengthByDistance;
+    public boolean isStrengthByDistance() {
+        return strengthByDistance;
+    }
 
     public PointAttractorForce(Vec3 position, float range, float strength, float decay, boolean strengthByDistance) {
         this.position = () -> position;
@@ -58,5 +86,11 @@ public class PointAttractorForce extends AbstractParticleForce {
             }
             particle.addForce(diff.normalize().scale(-strength));
         }
+    }
+
+    @NotNull
+    @Override
+    public ModuleType<?> getType() {
+        return ModuleType.POINT_ATTRACTOR;
     }
 }

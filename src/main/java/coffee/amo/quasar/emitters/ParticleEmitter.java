@@ -1,8 +1,13 @@
 package coffee.amo.quasar.emitters;
 
 import coffee.amo.quasar.client.QuasarParticleData;
+import coffee.amo.quasar.client.QuasarParticleDataRegistry;
 import coffee.amo.quasar.emitters.modules.emitter.EmitterModule;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsModule;
+import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsRegistry;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -23,14 +28,26 @@ import java.util.function.Function;
  *   OPTIONAL OnRenderAction that can be set to run when a particle is rendered
  */
 public class ParticleEmitter {
+    public static final Codec<ParticleEmitter> CODEC = RecordCodecBuilder.create(i ->
+            i.group(
+                    EmitterModule.CODEC.fieldOf("emitter_module").forGetter(ParticleEmitter::getEmitterModule),
+                    ResourceLocation.CODEC.fieldOf("emitter_settings").xmap(
+                            EmitterSettingsRegistry::getSettings,
+                            EmitterSettingsRegistry::getSettingsId
+                    ).forGetter(ParticleEmitter::getEmitterSettingsModule),
+                    ResourceLocation.CODEC.fieldOf("particle_data").xmap(
+                            QuasarParticleDataRegistry::getData,
+                            QuasarParticleDataRegistry::getDataId
+                    ).forGetter(ParticleEmitter::getParticleData)
+            ).apply(i, ParticleEmitter::new)
+            );
     public boolean isComplete = false;
     private boolean active = false;
     EmitterModule emitterModule;
     EmitterSettingsModule emitterSettingsModule;
-    Function<Vec3, Vec3> colorFunction = (vec) -> vec;
     float maxYOffset = 0.0f;
     private Level level;
-    private Entity linkedEntity;
+//    private Entity linkedEntity;
     QuasarParticleData data;
 
     public ParticleEmitter(Level level, EmitterModule emitterModule, EmitterSettingsModule emitterSettingsModule) {
@@ -40,12 +57,41 @@ public class ParticleEmitter {
         this.data = new QuasarParticleData(emitterSettingsModule.getEmissionParticleSettings(), true, true);
     }
 
+    public ParticleEmitter(EmitterModule emitterModule, EmitterSettingsModule emitterSettingsModule, QuasarParticleData data) {
+        this(null, emitterModule, emitterSettingsModule);
+        this.data = data;
+        data.setParticleSettings(emitterSettingsModule.getEmissionParticleSettings());
+    }
+
+    public ParticleEmitter instance(){
+        ParticleEmitter emitter = new ParticleEmitter(this.level, this.emitterModule.instance(), this.emitterSettingsModule.instance());
+        emitter.data = this.data;
+        return emitter;
+    }
+
     public boolean isActive() {
         return active;
     }
 
+    public void setLevel(Level level) {
+        this.level = level;
+        this.emitterSettingsModule.getEmissionShapeSettings().setRandomSource(level.random);
+    }
+
+    public void setPosition(Vec3 position){
+        this.emitterModule.setPosition(position);
+        this.emitterSettingsModule.getEmissionShapeSettings().setPosition(position);
+    }
     public QuasarParticleData getParticleData() {
         return data;
+    }
+
+    public EmitterModule getEmitterModule() {
+        return emitterModule;
+    }
+
+    public EmitterSettingsModule getEmitterSettingsModule() {
+        return emitterSettingsModule;
     }
 
     public void run() {

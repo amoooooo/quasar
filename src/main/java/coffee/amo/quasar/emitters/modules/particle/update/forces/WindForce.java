@@ -1,7 +1,11 @@
 package coffee.amo.quasar.emitters.modules.particle.update.forces;
 
 import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.emitters.modules.ModuleType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A force that applies a wind force to a particle.
@@ -18,8 +22,22 @@ import net.minecraft.world.phys.Vec3;
  *     The windSpeed parameter is measured in blocks per tick.
  */
 public class WindForce extends AbstractParticleForce {
+    public static final Codec<WindForce> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Vec3.CODEC.fieldOf("wind_direction").forGetter(WindForce::getWindDirection),
+                    Codec.FLOAT.fieldOf("wind_speed").forGetter(WindForce::getWindSpeed),
+                    Codec.FLOAT.fieldOf("strength").forGetter(WindForce::getStrength),
+                    Codec.FLOAT.fieldOf("falloff").forGetter(WindForce::getFalloff)
+            ).apply(instance, WindForce::new)
+    );
     Vec3 windDirection;
+    public Vec3 getWindDirection() {
+        return windDirection;
+    }
     float windSpeed;
+    public float getWindSpeed() {
+        return windSpeed;
+    }
     public WindForce(Vec3 windDirection, float windSpeed, float strength, float falloff) {
         this.windDirection = windDirection;
         this.windSpeed = windSpeed;
@@ -29,5 +47,11 @@ public class WindForce extends AbstractParticleForce {
     @Override
     public void applyForce(QuasarParticle particle) {
         particle.addForce(windDirection.scale(windSpeed));
+    }
+
+    @NotNull
+    @Override
+    public ModuleType<?> getType() {
+        return ModuleType.WIND;
     }
 }

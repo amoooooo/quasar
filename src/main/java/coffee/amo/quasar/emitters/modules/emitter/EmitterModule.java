@@ -1,8 +1,18 @@
 package coffee.amo.quasar.emitters.modules.emitter;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.phys.Vec3;
 
 public class EmitterModule implements BaseEmitterModule {
+    public static Codec<EmitterModule> CODEC = RecordCodecBuilder.create(instance -> {
+        return instance.group(
+                Codec.INT.fieldOf("max_lifetime").forGetter(EmitterModule::getMaxLifetime),
+                Codec.BOOL.fieldOf("loop").forGetter(EmitterModule::getLoop),
+                Codec.INT.fieldOf("rate").forGetter(EmitterModule::getRate),
+                Codec.INT.fieldOf("count").forGetter(EmitterModule::getCount)
+        ).apply(instance, EmitterModule::new);
+    });
     /**
      * Position of the emitter
      */
@@ -51,6 +61,13 @@ public class EmitterModule implements BaseEmitterModule {
         this.count = count;
     }
 
+    private EmitterModule(int maxLifetime, boolean loop, int rate, int count) {
+        this.maxLifetime = maxLifetime;
+        this.loop = loop;
+        this.rate = rate;
+        this.count = count;
+    }
+
     /**
      * Tick the emitter. This is run to track the basic functionality of the emitter.
      */
@@ -71,6 +88,18 @@ public class EmitterModule implements BaseEmitterModule {
      */
     public boolean isComplete() {
         return complete;
+    }
+
+    /**
+     * Resets the emitter to its initial state
+     */
+    public void reset() {
+        currentLifetime = 0;
+        complete = false;
+    }
+
+    public EmitterModule instance(){
+        return new EmitterModule(maxLifetime, loop, rate, count);
     }
 
     /**

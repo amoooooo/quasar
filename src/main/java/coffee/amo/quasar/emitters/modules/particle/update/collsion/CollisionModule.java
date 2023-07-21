@@ -1,7 +1,11 @@
 package coffee.amo.quasar.emitters.modules.particle.update.collsion;
 
 import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.emitters.modules.Module;
+import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModule;
+import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -14,5 +18,16 @@ public class CollisionModule implements UpdateModule {
     @Override
     public void run(QuasarParticle particle) {
         collisionFunction.accept(particle);
+    }
+
+    @NotNull
+    @Override
+    public ModuleType<?> getType() {
+        return null;
+    }
+
+    @Override
+    public Codec<Module> getDispatchCodec() {
+        return null;
     }
 }

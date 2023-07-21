@@ -1,11 +1,29 @@
 package coffee.amo.quasar.emitters.modules.emitter.settings;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.function.Supplier;
 
 public class EmissionParticleSettings {
+    public static final Codec<EmissionParticleSettings> CODEC = RecordCodecBuilder.create(instance -> {
+        return instance.group(
+                Codec.FLOAT.fieldOf("particle_speed").forGetter(EmissionParticleSettings::getParticleSpeed),
+                Codec.FLOAT.fieldOf("base_particle_size").forGetter(EmissionParticleSettings::getParticleSize),
+                Codec.FLOAT.fieldOf("particle_size_variation").forGetter(EmissionParticleSettings::getParticleSizeVariation),
+                Codec.INT.fieldOf("particle_lifetime").forGetter(EmissionParticleSettings::getParticleLifetime),
+                Codec.FLOAT.fieldOf("particle_lifetime_variation").forGetter(EmissionParticleSettings::getParticleLifetimeVariation),
+                Vec3.CODEC.fieldOf("initial_direction").forGetter(EmissionParticleSettings::getInitialDirection),
+                Codec.BOOL.fieldOf("random_initial_direction").forGetter(EmissionParticleSettings::isRandomInitialDirection),
+                Codec.BOOL.fieldOf("random_initial_rotation").forGetter(EmissionParticleSettings::isRandomInitialRotation),
+                Codec.BOOL.fieldOf("random_speed").forGetter(EmissionParticleSettings::isRandomSpeed),
+                Codec.BOOL.fieldOf("random_size").forGetter(EmissionParticleSettings::isRandomSize),
+                Codec.BOOL.fieldOf("random_lifetime").forGetter(EmissionParticleSettings::isRandomLifetime)
+        ).apply(instance, EmissionParticleSettings::new);
+    });
+
     RandomSource randomSource;
     float particleSpeed;
     float baseParticleSize;
@@ -34,6 +52,24 @@ public class EmissionParticleSettings {
         this.randomLifetime = randomLifetime;
     }
 
+    private EmissionParticleSettings(float particleSpeed, float baseParticleSize, float particleSizeVariation, int particleLifetime, float particleLifetimeVariation, Vec3 initialDirection, boolean randomInitialDirection, boolean randomInitialRotation, boolean randomSpeed, boolean randomSize, boolean randomLifetime) {
+        this.particleSpeed = particleSpeed;
+        this.baseParticleSize = baseParticleSize;
+        this.particleSizeVariation = particleSizeVariation;
+        this.particleLifetime = particleLifetime;
+        this.particleLifetimeVariation = particleLifetimeVariation;
+        this.initialDirection = () -> initialDirection;
+        this.randomInitialDirection = randomInitialDirection;
+        this.randomInitialRotation = randomInitialRotation;
+        this.randomSpeed = randomSpeed;
+        this.randomSize = randomSize;
+        this.randomLifetime = randomLifetime;
+    }
+
+    public EmissionParticleSettings instance(){
+        return new EmissionParticleSettings(randomSource, particleSpeed, baseParticleSize, particleSizeVariation, particleLifetime, particleLifetimeVariation, initialDirection, randomInitialDirection, randomInitialRotation, randomSpeed, randomSize, randomLifetime);
+    }
+
     public float getParticleSpeed() {
         return randomSpeed ? particleSpeed + randomSource.nextFloat() * particleSpeed : particleSpeed;
     }
@@ -48,6 +84,50 @@ public class EmissionParticleSettings {
 
     public Vec3 getInitialDirection(){
         return randomInitialDirection ? initialDirection.get().multiply(randomSource.nextFloat() * 2 - 1, randomSource.nextFloat() * 2 - 1, randomSource.nextFloat() * 2 - 1) : initialDirection.get();
+    }
+
+    public boolean isRandomInitialDirection() {
+        return randomInitialDirection;
+    }
+
+    public boolean isRandomInitialRotation() {
+        return randomInitialRotation;
+    }
+
+    public boolean isRandomSpeed() {
+        return randomSpeed;
+    }
+
+    public boolean isRandomSize() {
+        return randomSize;
+    }
+
+    public boolean isRandomLifetime() {
+        return randomLifetime;
+    }
+
+    public float getParticleSizeVariation() {
+        return particleSizeVariation;
+    }
+
+    public float getParticleLifetimeVariation() {
+        return particleLifetimeVariation;
+    }
+
+    public float getBaseParticleSize() {
+        return baseParticleSize;
+    }
+
+    public RandomSource getRandomSource() {
+        return randomSource;
+    }
+
+    public float getBaseParticleSpeed() {
+        return particleSpeed;
+    }
+
+    public Supplier<Vec3> getInitialDirectionSupplier() {
+        return initialDirection;
     }
 
     public static class Builder {

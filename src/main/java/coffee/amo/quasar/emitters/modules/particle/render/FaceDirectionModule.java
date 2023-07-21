@@ -1,7 +1,9 @@
 package coffee.amo.quasar.emitters.modules.particle.render;
 
 import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.emitters.modules.ModuleType;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 public class FaceDirectionModule implements RenderModule {
     Vec3 direction;
@@ -23,5 +25,11 @@ public class FaceDirectionModule implements RenderModule {
         float yaw = currentYaw + (targetYaw - currentYaw) * partialTicks;
         float roll = currentRoll + (targetRoll - currentRoll) * partialTicks;
         data.setRotation(pitch, yaw, roll);
+    }
+
+    @NotNull
+    @Override
+    public ModuleType<?> getType() {
+        return null;
     }
 }

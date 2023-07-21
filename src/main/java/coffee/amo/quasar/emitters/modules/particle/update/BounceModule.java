@@ -1,6 +1,8 @@
 package coffee.amo.quasar.emitters.modules.particle.update;
 
 import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.emitters.modules.ModuleType;
+import org.jetbrains.annotations.NotNull;
 
 public class BounceModule implements UpdateModule {
     @Override
@@ -16,5 +18,11 @@ public class BounceModule implements UpdateModule {
                 if(particle.getZDelta() == 0) particle.setZDelta(particle.getZDelta() * -1);
             }
         }
+    }
+
+    @NotNull
+    @Override
+    public ModuleType<?> getType() {
+        return null;
     }
 }

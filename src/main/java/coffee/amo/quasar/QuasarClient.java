@@ -1,9 +1,19 @@
 package coffee.amo.quasar;
 
+import coffee.amo.quasar.client.QuasarParticleDataListener;
+import coffee.amo.quasar.emitters.ParticleEmitterJsonListener;
+import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
+import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
+import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsJsonListener;
+import coffee.amo.quasar.emitters.modules.emitter.settings.ParticleSettingsJsonListener;
+import coffee.amo.quasar.emitters.modules.emitter.settings.ShapeSettingsJsonListener;
+import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleJsonListener;
+import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleJsonListener;
 import coffee.amo.quasar.registry.AllParticleTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -35,6 +45,18 @@ public class QuasarClient {
 
     public static void onCtorClient(IEventBus modEventBus, IEventBus forgeEventBus) {
         modEventBus.addListener(AllParticleTypes::registerFactories);
+        modEventBus.addListener(QuasarClient::clientReloadListeners);
+        ParticleEmitterRegistry.bootstrap();
+    }
+
+    public static void clientReloadListeners(RegisterClientReloadListenersEvent event) {
+        UpdateModuleJsonListener.register(event);
+        RenderModuleJsonListener.register(event);
+        QuasarParticleDataListener.register(event);
+        ParticleSettingsJsonListener.register(event);
+        ShapeSettingsJsonListener.register(event);
+        EmitterSettingsJsonListener.register(event);
+        ParticleEmitterJsonListener.register(event);
     }
 
     @SubscribeEvent

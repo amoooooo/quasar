@@ -1,5 +1,6 @@
 package coffee.amo.quasar;
 
+import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.entity.BlackHoleEntity;
 import coffee.amo.quasar.entity.SlashEntity;
 import coffee.amo.quasar.net.DNDNetworking;
@@ -7,6 +8,7 @@ import coffee.amo.quasar.net.packets.CubeParticlePacket;
 import coffee.amo.quasar.emitters.ParticleSystemManager;
 import coffee.amo.quasar.registry.AllParticleTypes;
 import coffee.amo.quasar.registry.EntityRegistry;
+import com.google.gson.Gson;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -37,10 +39,9 @@ import org.slf4j.Logger;
 @Mod(Quasar.MODID)
 public class Quasar {
 
-    // Define mod id in a common place for everything to reference
+    public static final Gson GSON = new Gson();
     public static final String MODID = "quasar";
-    // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     private static float randomFloat(Level level) {
         return (float) Math.random();
     }
@@ -53,6 +54,7 @@ public class Quasar {
         ParticleRegistry.PARTICLES.register(modEventBus);
         EntityRegistry.ENTITY_TYPES.register(modEventBus);
         DNDNetworking.init();
+        ModuleType.bootstrap();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> QuasarClient.onCtorClient(modEventBus, forgeEventBus));
     }
 

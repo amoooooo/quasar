@@ -1,14 +1,30 @@
 package coffee.amo.quasar.emitters.modules.particle.render;
 
 import coffee.amo.quasar.registry.AllSpecialTextures;
+import coffee.amo.quasar.util.CodecUtil;
 import coffee.amo.quasar.util.TriFunction;
 import com.mojang.math.Vector4f;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.function.BiFunction;
 
 public class TrailSettings {
+    public static final Codec<TrailSettings> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("trailFrequency").forGetter(settings -> settings.trailFrequency),
+                    Codec.INT.fieldOf("trailLength").forGetter(settings -> settings.trailLength),
+                    CodecUtil.VECTOR4F_CODEC.fieldOf("trailColor").xmap(
+                            s -> s == null ? new Vector4f(0.0f,0.0f,0.0f,1.0f) : s,
+                            s -> s == null ? new Vector4f(0.0f,0.0f,0.0f,1.0f) : s).forGetter(settings -> settings.trailColor),
+                    Codec.FLOAT.fieldOf("trailWidthModifier").forGetter(settings -> 1f),
+                    ResourceLocation.CODEC.fieldOf("trailTexture").forGetter(settings -> settings.trailTexture),
+                    Codec.FLOAT.fieldOf("trailPointModifier").forGetter(settings -> 1f)
+            ).apply(instance, TrailSettings::new)
+            );
     protected int trailFrequency = 1;
     protected int trailLength = 20;
     protected Vector4f trailColor = new Vector4f(1, 1, 1, 1);
@@ -23,6 +39,15 @@ public class TrailSettings {
         this.trailWidthModifier = trailWidthModifier;
         this.trailTexture = trailTexture;
         this.trailPointModifier = trailPointModifier;
+    }
+
+    private TrailSettings(int trailFrequency, int trailLength, Vector4f trailColor, float trailWidthModifier, ResourceLocation trailTexture, float trailPointModifier) {
+        this.trailFrequency = trailFrequency;
+        this.trailLength = trailLength;
+        this.trailColor = trailColor;
+        this.trailWidthModifier = (width, ageScale) -> trailWidthModifier;
+        this.trailTexture = trailTexture;
+        this.trailPointModifier = (point, index, velocity) -> point;
     }
 
     public void setTrailPointModifier(TriFunction<Vector4f, Integer, Vec3, Vector4f> trailPointModifier) {
