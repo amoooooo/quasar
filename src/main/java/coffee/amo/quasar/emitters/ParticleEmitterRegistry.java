@@ -33,4 +33,8 @@ public class ParticleEmitterRegistry {
     public static void clearRegisteredEmitters() {
         EMITTERS_BY_ID.clear();
     }
+
+    public static Iterable<ResourceLocation> getEmitterNames() {
+        return EMITTERS_BY_ID.keySet().stream().toList();
+    }
 }

@@ -91,7 +91,7 @@ public class QuasarParticle extends Particle {
     private static final ParticleRenderType RENDER_TYPE_FLAT = new QuasarParticleRenderType();
 
     protected float scale;
-    public boolean shouldCollide = true;
+    public boolean shouldCollide = false;
     protected boolean emissive = true;
     protected Vec3 previousMotion = Vec3.ZERO;
     protected Vector4f[] previousPositions = new Vector4f[0];
@@ -436,6 +436,11 @@ public class QuasarParticle extends Particle {
         this.gCol = color.y();
         this.bCol = color.z();
         this.alpha = color.w();
+    }
+
+    @Override
+    public boolean shouldCull() {
+        return false;
     }
 
     public static class Factory implements ParticleProvider<QuasarParticleData> {

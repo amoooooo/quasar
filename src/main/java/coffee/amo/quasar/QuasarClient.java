@@ -1,6 +1,7 @@
 package coffee.amo.quasar;
 
 import coffee.amo.quasar.client.QuasarParticleDataListener;
+import coffee.amo.quasar.command.QuasarParticleCommand;
 import coffee.amo.quasar.emitters.ParticleEmitterJsonListener;
 import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
@@ -13,6 +14,7 @@ import coffee.amo.quasar.registry.AllParticleTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
@@ -57,6 +59,11 @@ public class QuasarClient {
         ShapeSettingsJsonListener.register(event);
         EmitterSettingsJsonListener.register(event);
         ParticleEmitterJsonListener.register(event);
+    }
+
+    @SubscribeEvent
+    public static void registerClientCommands(RegisterClientCommandsEvent event){
+        event.getDispatcher().register(QuasarParticleCommand.CMD.register());
     }
 
     @SubscribeEvent

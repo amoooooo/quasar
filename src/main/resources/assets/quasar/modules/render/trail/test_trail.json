@@ -2,15 +2,15 @@
     "module": "trail",
     "settings": [
         {
-            "trailWidthModifier": 0.06,
+            "trailWidthModifier": 0.12,
             "trailTexture": "quasar:textures/special/blank.png",
             "trailPointModifier": 1.0,
-            "trailFrequency": 2,
-            "trailLength": 10,
+            "trailFrequency": 10,
+            "trailLength": 50,
             "trailColor": [
-                0.2,
-                0.70,
-                0.65,
+                0.75,
+                0.75,
+                0.75,
                 1.0
             ]
         }

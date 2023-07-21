@@ -7,16 +7,16 @@
             "cellular_distance_function": "EuclideanSq",
             "cellular_return_type": "Distance",
             "noise_type": "OpenSimplex2",
-            "octaves": 1,
+            "octaves": 2,
             "lacunarity": 2.0,
             "gain": 1.5,
             "frequency": 0.5,
             "seed": 1337,
             "fractal_type": "FBm"
         },
-        "strength": 0.25
+        "strength": 0.45
     },
-    "strength": 0.45,
+    "strength": 0.25,
     "falloff": 1.0,
     "module": "vector_field"
 }

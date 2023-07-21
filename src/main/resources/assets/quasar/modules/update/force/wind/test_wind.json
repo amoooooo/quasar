@@ -1,10 +1,10 @@
 {
     "wind_direction": [
+        0.2,
         0.0,
-        0.5,
-        0.0
+        0.2
     ],
-    "wind_speed": 0.75,
+    "wind_speed": 0.35,
     "strength": 1.0,
     "falloff": 1.0,
     "module": "wind"

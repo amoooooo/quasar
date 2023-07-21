@@ -1,16 +1,12 @@
 {
     "update_modules": [],
     "forces": [
-        "quasar:force/gravity/test_gravity",
-        "quasar:force/vortex/test_vortex",
-        "quasar:force/point_attractor/test_point_attractor",
         "quasar:force/vector_field/test_vector_field",
-        "quasar:force/drag/test_drag",
-        "quasar:force/wind/test_wind",
-        "quasar:force/point_force/test_point"
+        "quasar:force/wind/test_wind"
     ],
     "render_modules": [
         "quasar:trail/test_trail"
     ],
-    "face_velocity": true
+    "face_velocity": true,
+    "should_collide": false
 }
