@@ -21,9 +21,16 @@ public class GravityForce extends AbstractParticleForce {
         particle.setGravity(strength);
     }
 
+    @Override
+    public GravityForce copy() {
+        return new GravityForce(strength);
+    }
+
     @NotNull
     @Override
     public ModuleType<?> getType() {
         return ModuleType.GRAVITY;
     }
+
+    
 }

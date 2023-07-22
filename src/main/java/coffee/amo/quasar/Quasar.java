@@ -1,8 +1,14 @@
 package coffee.amo.quasar;
 
+import coffee.amo.quasar.client.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
+import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleRegistry;
+import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
+import coffee.amo.quasar.emitters.modules.particle.update.forces.PointAttractorForce;
 import coffee.amo.quasar.entity.BlackHoleEntity;
 import coffee.amo.quasar.entity.SlashEntity;
+import coffee.amo.quasar.event.EmitterInstantiationEvent;
+import coffee.amo.quasar.event.QuasarParticleTickEvent;
 import coffee.amo.quasar.net.DNDNetworking;
 import coffee.amo.quasar.net.packets.CubeParticlePacket;
 import coffee.amo.quasar.emitters.ParticleSystemManager;
@@ -10,10 +16,12 @@ import coffee.amo.quasar.registry.AllParticleTypes;
 import coffee.amo.quasar.registry.EntityRegistry;
 import com.google.gson.Gson;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwordItem;
@@ -34,6 +42,9 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
+
+import java.util.List;
+import java.util.Objects;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(Quasar.MODID)
@@ -56,6 +67,32 @@ public class Quasar {
         DNDNetworking.init();
         ModuleType.bootstrap();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> QuasarClient.onCtorClient(modEventBus, forgeEventBus));
+    }
+
+    @SubscribeEvent
+    public void onEmitterInstantiate(EmitterInstantiationEvent event){
+
+    }
+
+    @SubscribeEvent
+    public void onQuasarParticleTick(QuasarParticleTickEvent event){
+        QuasarParticle particle = event.getParticle();
+        if(particle.getDataId().toString().equals("quasar:swiftshot_data")){
+            particle.getForces().clear();
+            List<LivingEntity> entities = particle.getLevel().getEntitiesOfClass(LivingEntity.class, particle.getBoundingBox().inflate(8));
+            entities.forEach(entity -> {
+                if(entity instanceof Player) return;
+                PointAttractorForce attractorForce = (PointAttractorForce) ((AbstractParticleForce) Objects.requireNonNull(UpdateModuleRegistry.getModule(ResourceLocation.tryParse("quasar:force/point_attractor/swiftshot")))).copy();
+                if(attractorForce == null) return;
+                attractorForce.setPosition(() -> entity.position().add(0.0, entity.getBbHeight()/2f, 0.0));
+                particle.getForces().add(attractorForce);
+            });
+            List<AbstractParticleForce> outOfRange = particle.getForces().stream().filter(force -> force instanceof PointAttractorForce).filter(force -> {
+                PointAttractorForce attractorForce = (PointAttractorForce) force;
+                return attractorForce.getPosition().get().distanceTo(particle.getPos()) > 8;
+            }).toList();
+            particle.getForces().removeAll(outOfRange);
+        }
     }
 
     @SubscribeEvent

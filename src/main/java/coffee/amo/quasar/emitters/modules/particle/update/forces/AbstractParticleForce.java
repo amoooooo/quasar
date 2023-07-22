@@ -29,4 +29,6 @@ public abstract class AbstractParticleForce implements UpdateModule {
     public void setFalloff(float falloff) {
         this.falloff = falloff;
     }
+
+    public abstract <T extends AbstractParticleForce> T copy();
 }

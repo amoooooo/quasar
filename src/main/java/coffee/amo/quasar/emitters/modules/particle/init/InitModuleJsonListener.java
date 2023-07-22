@@ -1,7 +1,8 @@
-package coffee.amo.quasar.emitters.modules.particle.render;
+package coffee.amo.quasar.emitters.modules.particle.init;
 
 import coffee.amo.quasar.Quasar;
 import coffee.amo.quasar.emitters.modules.Module;
+import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -13,28 +14,29 @@ import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 
 import java.util.Map;
 
-public class RenderModuleJsonListener extends SimpleJsonResourceReloadListener {
-    public RenderModuleJsonListener() {
-        super(Quasar.GSON, "modules/render");
+public class InitModuleJsonListener extends SimpleJsonResourceReloadListener {
+    public InitModuleJsonListener() {
+        super(Quasar.GSON, "modules/init");
     }
 
     public static void register(RegisterClientReloadListenersEvent event){
-        event.registerReloadListener(new RenderModuleJsonListener());
-        Quasar.LOGGER.info("Registered render module listener");
+        event.registerReloadListener(new InitModuleJsonListener());
+        Quasar.LOGGER.info("Registered init module listener");
     }
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager rm, ProfilerFiller profiler) {
-        RenderModuleRegistry.clearRegisteredModules();
+        InitModuleRegistry.clearRegisteredModules();
         for(Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()){
             ResourceLocation id = entry.getKey();
-            DataResult<Module> moduleDataResult = RenderModule.DISPATCH_CODEC.parse(JsonOps.INSTANCE, entry.getValue());
+            DataResult<Module> moduleDataResult = InitModule.DISPATCH_CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if(moduleDataResult.error().isPresent()){
                 Quasar.LOGGER.error("Could not read %s. %s".formatted(id, moduleDataResult.error().get().message()));
                 continue;
             }
             Module module = moduleDataResult.getOrThrow(false, Quasar.LOGGER::error);
-            RenderModuleRegistry.register(id, (RenderModule)module);
+            InitModuleRegistry.register(id, (InitModule)module);
         }
+        String message = "Registered %d init modules".formatted(elements.size());
     }
 }

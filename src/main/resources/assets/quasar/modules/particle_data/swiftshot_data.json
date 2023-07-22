@@ -1,0 +1,22 @@
+{
+    "init_modules": [
+        "quasar:swiftshot_velocity"
+    ],
+    "update_modules": [],
+    "collision_modules": [
+        "quasar:collision/die_on_collide",
+        "quasar:collision/swiftshot_shrapnel_sub"
+    ],
+    "forces": [
+        "quasar:force/drag/test_drag",
+        "quasar:force/gravity/test_gravity",
+        "quasar:force/vector_field/test_vector_field"
+    ],
+    "render_modules": [
+        "quasar:trail/swiftshot_trail",
+        "quasar:color/swiftshot_color"
+    ],
+    "face_velocity": true,
+    "velocity_stretch_factor": 8.0,
+    "should_collide": true
+}

@@ -1,7 +1,9 @@
 package coffee.amo.quasar.emitters;
 
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
+import coffee.amo.quasar.event.EmitterInstantiationEvent;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +37,11 @@ public class ParticleSystemManager {
     }
 
     public void addParticleSystem(ParticleEmitter particleEmitter) {
-        particleEmitters.add(particleEmitter);
+        ParticleEmitter emitter = particleEmitter;
+        EmitterInstantiationEvent event = new EmitterInstantiationEvent(emitter);
+        MinecraftForge.EVENT_BUS.post(event);
+        emitter = event.getEmitter();
+        particleEmitters.add(emitter);
     }
 
     public void clear() {

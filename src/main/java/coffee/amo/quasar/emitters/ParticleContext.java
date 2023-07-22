@@ -1,5 +1,6 @@
 package coffee.amo.quasar.emitters;
 
+import coffee.amo.quasar.client.QuasarParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -8,7 +9,7 @@ public class ParticleContext {
     public Vec3 position;
     public Vec3 velocity;
     public Entity entity;
-    public Particle particle;
+    public QuasarParticle particle;
 
     public ParticleContext(Vec3 position, Vec3 velocity){
         this.position = position;
@@ -21,7 +22,7 @@ public class ParticleContext {
         this.entity = entity;
     }
 
-    public ParticleContext(Vec3 position, Vec3 velocity, Particle particle){
+    public ParticleContext(Vec3 position, Vec3 velocity, QuasarParticle particle){
         this.position = position;
         this.velocity = velocity;
         this.particle = particle;

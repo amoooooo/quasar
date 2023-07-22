@@ -30,4 +30,11 @@ public class DragForce extends AbstractParticleForce {
     public ModuleType<?> getType() {
         return ModuleType.DRAG;
     }
+
+    @Override
+    public DragForce copy() {
+        return new DragForce(strength);
+    }
+
+    
 }

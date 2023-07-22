@@ -12,10 +12,10 @@ public interface RenderModule extends Module {
         }
         return renderModule.getType();
     }, ModuleType::getCodec);
-    void apply(QuasarParticle particle, float partialTicks, RenderData data);
-
     @Override
     default Codec<Module> getDispatchCodec(){
         return DISPATCH_CODEC;
     }
+
+    void apply(QuasarParticle particle, float partialTicks, RenderData data);
 }

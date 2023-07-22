@@ -8,6 +8,7 @@ import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSetti
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsJsonListener;
 import coffee.amo.quasar.emitters.modules.emitter.settings.ParticleSettingsJsonListener;
 import coffee.amo.quasar.emitters.modules.emitter.settings.ShapeSettingsJsonListener;
+import coffee.amo.quasar.emitters.modules.particle.init.InitModuleJsonListener;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleJsonListener;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleJsonListener;
 import coffee.amo.quasar.registry.AllParticleTypes;
@@ -52,6 +53,7 @@ public class QuasarClient {
     }
 
     public static void clientReloadListeners(RegisterClientReloadListenersEvent event) {
+        InitModuleJsonListener.register(event);
         UpdateModuleJsonListener.register(event);
         RenderModuleJsonListener.register(event);
         QuasarParticleDataListener.register(event);

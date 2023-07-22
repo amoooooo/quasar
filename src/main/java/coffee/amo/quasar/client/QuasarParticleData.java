@@ -2,14 +2,13 @@ package coffee.amo.quasar.client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import coffee.amo.quasar.emitters.modules.Module;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
 import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
+import coffee.amo.quasar.emitters.modules.particle.init.InitModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModule;
@@ -58,10 +57,22 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
                     Codec.BOOL.optionalFieldOf("should_collide", true).forGetter(QuasarParticleData::shouldCollide),
                     Codec.BOOL.optionalFieldOf("face_velocity", false).forGetter(QuasarParticleData::getFaceVelocity),
                     Codec.FLOAT.optionalFieldOf("velocity_stretch_factor", 0.0f).forGetter(QuasarParticleData::getVelocityStretchFactor),
+                    ResourceLocation.CODEC.listOf().fieldOf("init_modules").xmap(
+                            r -> r.stream().map(InitModuleRegistry::getModule).collect(Collectors.toList()),
+                            r -> r.stream().map(InitModuleRegistry::getModuleId).collect(Collectors.toList())
+                    ).forGetter(QuasarParticleData::getInitModules),
                     ResourceLocation.CODEC.listOf().fieldOf("update_modules").xmap(
                             r -> r.stream().map(UpdateModuleRegistry::getModule).collect(Collectors.toList()),
                             r -> r.stream().map(UpdateModuleRegistry::getModuleId).collect(Collectors.toList())
                     ).forGetter(QuasarParticleData::getUpdateModules),
+                    ResourceLocation.CODEC.listOf().fieldOf("collision_modules").orElse(List.of()).xmap(
+                            r -> {
+                                return r.stream().map(f -> (CollisionModule) UpdateModuleRegistry.getModule(f)).collect(Collectors.toList());
+                            },
+                            r -> {
+                                return r.stream().map(f -> UpdateModuleRegistry.getModuleId((CollisionModule) f)).collect(Collectors.toList());
+                            }
+                    ).forGetter(QuasarParticleData::getCollisionModules),
                     ResourceLocation.CODEC.listOf().fieldOf("forces").xmap(
                             r -> {
                                 return r.stream().map(f -> (AbstractParticleForce) UpdateModuleRegistry.getModule(f)).collect(Collectors.toList());
@@ -74,9 +85,11 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
                             r -> r.stream().map(RenderModuleRegistry::getModule).collect(Collectors.toList()),
                             r -> r.stream().map(RenderModuleRegistry::getModuleId).collect(Collectors.toList())
                     ).forGetter(QuasarParticleData::getRenderModules)
-            ).apply(i, (shouldCollide, faceVelocity, velocityStretchFactor, updateModules, forces, renderModules) -> {
+            ).apply(i, (shouldCollide, faceVelocity, velocityStretchFactor, initModules, updateModules, collisionModules, forces, renderModules) -> {
                         QuasarParticleData data = new QuasarParticleData(shouldCollide, faceVelocity, velocityStretchFactor);
+                        data.initModules = initModules;
                         data.updateModules = updateModules;
+                        data.collisionModules = collisionModules;
                         data.renderModules = renderModules;
                         data.forces = forces;
                         return data;
@@ -84,11 +97,12 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
             )
     );
 
+    public ResourceLocation registryId;
     EmissionParticleSettings particleSettings;
     public boolean shouldCollide = true;
     boolean faceVelocity = false;
     float velocityStretchFactor = 0;
-    List<Consumer<ParticleContext>> subEmitters = new ArrayList<>();
+    List<ResourceLocation> subEmitters = new ArrayList<>();
     List<AbstractParticleForce> forces = new ArrayList<>();
     List<InitModule> initModules = new ArrayList<>();
     List<RenderModule> renderModules = new ArrayList<>();
@@ -169,13 +183,14 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
         this.forces.addAll(Arrays.asList(forces));
     }
 
-    public void addSubEmitter(Consumer<ParticleContext> emitter) {
+    public void addSubEmitter(ResourceLocation emitter) {
         subEmitters.add(emitter);
     }
 
-    public void addSubEmitters(Consumer<ParticleContext>... emitters) {
+    public void addSubEmitters(ResourceLocation... emitters) {
         subEmitters.addAll(Arrays.asList(emitters));
     }
+
 
     public EmissionParticleSettings getParticleSettings() {
         return particleSettings;
@@ -197,7 +212,7 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
         return velocityStretchFactor;
     }
 
-    public List<Consumer<ParticleContext>> getSubEmitters() {
+    public List<ResourceLocation> getSubEmitters() {
         return subEmitters;
     }
 
@@ -276,5 +291,16 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
 
     public void removeForces(AbstractParticleForce[] forces) {
         this.forces.removeAll(Arrays.asList(forces));
+    }
+
+    public QuasarParticleData instance() {
+        QuasarParticleData data = new QuasarParticleData(particleSettings, shouldCollide, faceVelocity, velocityStretchFactor);
+        data.initModules = initModules;
+        data.updateModules = updateModules;
+        data.renderModules = renderModules;
+        data.collisionModules = collisionModules;
+        data.forces = forces;
+        data.registryId = registryId;
+        return data;
     }
 }

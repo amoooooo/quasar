@@ -41,6 +41,7 @@ public class ParticleEmitter {
                     ).forGetter(ParticleEmitter::getParticleData)
             ).apply(i, ParticleEmitter::new)
             );
+    public ResourceLocation registryName;
     public boolean isComplete = false;
     private boolean active = false;
     EmitterModule emitterModule;
@@ -63,10 +64,16 @@ public class ParticleEmitter {
         data.setParticleSettings(emitterSettingsModule.getEmissionParticleSettings());
     }
 
+    public ParticleEmitter(Level level, EmitterModule emitterModule, EmitterSettingsModule emitterSettingsModule, QuasarParticleData quasarParticleData) {
+        this(level, emitterModule, emitterSettingsModule);
+        this.data = quasarParticleData;
+        data.setParticleSettings(emitterSettingsModule.getEmissionParticleSettings());
+    }
+
     public ParticleEmitter instance(){
-        ParticleEmitter emitter = new ParticleEmitter(this.level, this.emitterModule.instance(), this.emitterSettingsModule.instance());
-        emitter.data = this.data;
-        return emitter;
+        ParticleEmitter em = new ParticleEmitter(this.level, this.emitterModule.instance(), this.emitterSettingsModule.instance(), this.data.instance());
+        em.registryName = this.registryName;
+        return em;
     }
 
     public boolean isActive() {

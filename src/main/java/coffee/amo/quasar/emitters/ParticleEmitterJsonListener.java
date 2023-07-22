@@ -34,6 +34,7 @@ public class ParticleEmitterJsonListener extends SimpleJsonResourceReloadListene
                 continue;
             }
             ParticleEmitter data = dataResult.getOrThrow(false, Quasar.LOGGER::error);
+            data.registryName = id;
             ParticleEmitterRegistry.register(id, data);
         }
     }

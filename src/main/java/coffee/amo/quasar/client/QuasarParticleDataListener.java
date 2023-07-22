@@ -34,6 +34,7 @@ public class QuasarParticleDataListener extends SimpleJsonResourceReloadListener
                 continue;
             }
             QuasarParticleData data = dataResult.getOrThrow(false, Quasar.LOGGER::error);
+            data.registryId = id;
             QuasarParticleDataRegistry.register(id, data);
         }
     }

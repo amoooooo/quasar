@@ -1,4 +1,5 @@
 {
+    "init_modules": [],
     "update_modules": [],
     "forces": [
         "quasar:force/vector_field/test_vector_field",
@@ -8,5 +9,5 @@
         "quasar:trail/test_trail"
     ],
     "face_velocity": true,
-    "should_collide": false
+    "should_collide": true
 }

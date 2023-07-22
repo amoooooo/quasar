@@ -74,4 +74,11 @@ public class PointForce extends AbstractParticleForce{
     public ModuleType<?> getType() {
         return ModuleType.POINT;
     }
+
+    @Override
+    public PointForce copy() {
+        return new PointForce(point, range, strength, falloff);
+    }
+
+    
 }

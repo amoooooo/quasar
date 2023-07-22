@@ -4,6 +4,7 @@ import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderData;
 import coffee.amo.quasar.emitters.modules.particle.render.TrailModule;
 import coffee.amo.quasar.emitters.modules.particle.update.collsion.CollisionModule;
+import coffee.amo.quasar.event.QuasarParticleTickEvent;
 import coffee.amo.quasar.registry.AllSpecialTextures;
 import coffee.amo.quasar.QuasarClient;
 import coffee.amo.quasar.emitters.ParticleContext;
@@ -30,8 +31,12 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -88,6 +93,8 @@ public class QuasarParticle extends Particle {
         }
     };
 
+    private ResourceLocation dataId;
+
     private static final ParticleRenderType RENDER_TYPE_FLAT = new QuasarParticleRenderType();
 
     protected float scale;
@@ -108,7 +115,7 @@ public class QuasarParticle extends Particle {
     protected float velocityStretchFactor = 0.0f;
 
     protected List<TrailModule> trailModules = new ArrayList<>();
-    List<Consumer<ParticleContext>> subEmitters = new ArrayList<>();
+    List<ResourceLocation> subEmitters = new ArrayList<>();
     List<AbstractParticleForce> forces = new ArrayList<>();
     List<InitModule> initModules = new ArrayList<>();
     List<RenderModule> renderModules = new ArrayList<>();
@@ -126,24 +133,32 @@ public class QuasarParticle extends Particle {
         this.velocityStretchFactor = data.velocityStretchFactor;
         this.setScale(0.2F);
         this.previousMotion = new Vec3(motionX, motionY, motionZ);
-        this.initModules = data.initModules;
         this.renderModules = data.renderModules;
+        this.initModules = data.initModules;
         this.updateModules = data.updateModules;
         this.collisionModules = data.collisionModules;
         this.forces = data.forces;
         this.subEmitters = data.subEmitters;
-        this.trailModules = data.renderModules.stream().filter(m -> m instanceof TrailModule).map(m -> (TrailModule)m).collect(Collectors.toList());
+        this.trailModules = data.initModules.stream().filter(m -> m instanceof TrailModule).map(m -> (TrailModule)m).collect(Collectors.toList());
         this.scale = data.particleSettings.getParticleSize();
         this.lifetime = data.particleSettings.getParticleLifetime();
+        this.dataId = data.registryId;
         this.initModules.forEach(m -> m.run(this));
     }
     public QuasarParticle() {
         super(null, 0, 0, 0);
     }
 
+    public List<ResourceLocation> getSubEmitters() {
+        return subEmitters;
+    }
     public void setScale(float scale) {
         this.scale = scale;
         this.setSize(scale * 0.5f, scale * 0.5f);
+    }
+
+    public ResourceLocation getDataId() {
+        return dataId;
     }
 
     public float getScale() {
@@ -202,33 +217,51 @@ public class QuasarParticle extends Particle {
 
     @Override
     public void tick() {
-        initModules.forEach(m -> m.run(this));
+        MinecraftForge.EVENT_BUS.post(new QuasarParticleTickEvent(this));
         hasPhysics = true;
         Vec3 motion = new Vec3(xd, yd, zd);
         position = new Vec3(x, y, z);
+        if ((stoppedByCollision || this.onGround)) {
+            collisionModules.forEach(m -> {
+                m.run(this);
+            });
+        }
         if(!shouldCollide && !this.collisionModules.isEmpty()) {
             shouldCollide = true;
         }
+        updateModules.forEach(m -> {
+            m.run(this);
+        });
+        forces.forEach(force -> {
+            force.applyForce(this);
+        });
 
-        super.tick();
-
-        updateModules.forEach(m -> m.run(this));
-        forces.forEach(force -> force.applyForce(this));
-        if ((stoppedByCollision || this.onGround)) {
-            collisionModules.forEach(m -> m.run(this));
+        if (this.previousPosition.x == position.x) {
+            this.stoppedByCollision = true;
+        }
+        if (this.previousPosition.z == position.z) {
+            this.stoppedByCollision = true;
         }
         previousMotion = motion;
         previousPosition = position;
+        super.tick();
+        List<Entity> entities = this.level.getEntities(null, this.getBoundingBox().inflate(scale*2f));
+        for (Entity entity : entities) {
+            if (entity instanceof LivingEntity && shouldCollide) {
+                LivingEntity livingEntity = (LivingEntity) entity;
+                if (livingEntity.isAlive()) {
+                    if (livingEntity.isOnFire()) {
+                        livingEntity.clearFire();
+                    }
+                    livingEntity.hurt(DamageSource.MAGIC, 1);
+                    stoppedByCollision = true;
+                }
+            }
+        }
 
         // parent tick
         // end parent tick
 
-        if (this.xd == 0) {
-            this.stoppedByCollision = true;
-        }
-        if (this.zd == 0) {
-            this.stoppedByCollision = true;
-        }
     }
 
     @Override
@@ -352,10 +385,17 @@ public class QuasarParticle extends Particle {
         float lerpedZ = (float) (Mth.lerp(partialTicks, this.zo, this.z) - projectedView.z());
 
         int light = emissive ? LightTexture.FULL_BRIGHT : getLightColor(partialTicks);
+        Vec3 motionDirection = new Vec3(xd, yd, zd).normalize();
+        // randomly warp the 24 cube vertices
         for (int i = 0; i < 6; i++) {
+            // get the pitch and yaw of the motion direction, and rotate the cube face to match
             if (onGround) {
                 pitch = 0;
                 yaw = 0;
+            }
+            if(faceVelocity){
+                pitch = (float) Math.atan2(motionDirection.y, Math.sqrt(motionDirection.x * motionDirection.x + motionDirection.z * motionDirection.z));
+                yaw = (float) Math.atan2(motionDirection.x, motionDirection.z);
             }
             Vec3[] faceVerts = new Vec3[]{
                     CUBE[i * 4],
@@ -441,6 +481,18 @@ public class QuasarParticle extends Particle {
     @Override
     public boolean shouldCull() {
         return false;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public List<AbstractParticleForce> getForces() {
+        return forces;
+    }
+
+    public ParticleContext getContext() {
+        return new ParticleContext(position, previousMotion, this);
     }
 
     public static class Factory implements ParticleProvider<QuasarParticleData> {

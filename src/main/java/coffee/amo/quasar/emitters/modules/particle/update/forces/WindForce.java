@@ -54,4 +54,11 @@ public class WindForce extends AbstractParticleForce {
     public ModuleType<?> getType() {
         return ModuleType.WIND;
     }
+
+    @Override
+    public WindForce copy() {
+        return new WindForce(windDirection, windSpeed, strength, falloff);
+    }
+
+    
 }

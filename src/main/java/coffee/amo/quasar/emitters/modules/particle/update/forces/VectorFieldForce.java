@@ -44,4 +44,11 @@ public class VectorFieldForce extends AbstractParticleForce {
     public ModuleType<?> getType() {
         return ModuleType.VECTOR_FIELD;
     }
+
+    @Override
+    public VectorFieldForce copy() {
+        return new VectorFieldForce(vectorField, strength, falloff);
+    }
+
+    
 }

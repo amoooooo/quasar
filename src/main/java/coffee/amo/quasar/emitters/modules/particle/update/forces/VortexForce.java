@@ -89,4 +89,11 @@ public class VortexForce extends AbstractParticleForce {
     public ModuleType<?> getType() {
         return ModuleType.VORTEX;
     }
+
+    @Override
+    public VortexForce copy() {
+        return new VortexForce(vortexAxis, vortexCenter, range, strength, falloff);
+    }
+
+    
 }

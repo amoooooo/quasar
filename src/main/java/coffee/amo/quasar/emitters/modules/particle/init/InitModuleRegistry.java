@@ -1,18 +1,19 @@
-package coffee.amo.quasar.emitters.modules.particle.render;
+package coffee.amo.quasar.emitters.modules.particle.init;
 
 import coffee.amo.quasar.emitters.modules.ModuleType;
+import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.resources.ResourceLocation;
 
-public class RenderModuleRegistry {
+public class InitModuleRegistry {
     private static final BiMap<String, ModuleType<?>> MODULES = HashBiMap.create();
 
     public static final Codec<ModuleType<?>> MODULE_MAP_CODEC = Codec.STRING.comapFlatMap(name -> {
         if(!MODULES.containsKey(name)) {
-            return DataResult.error("Update module %s does not exist!".formatted(name));
+            return DataResult.error("Init module %s does not exist!".formatted(name));
         }
         return DataResult.success(MODULES.get(name));
     }, MODULES.inverse()::get);
@@ -23,13 +24,13 @@ public class RenderModuleRegistry {
 
     public static void bootstrap() {}
 
-    private static final BiMap<ResourceLocation, RenderModule> MODULES_BY_ID = HashBiMap.create();
+    private static final BiMap<ResourceLocation, InitModule> MODULES_BY_ID = HashBiMap.create();
 
-    public static void register(ResourceLocation id, RenderModule module) {
+    public static void register(ResourceLocation id, InitModule module) {
         MODULES_BY_ID.put(id, module);
     }
 
-    public static RenderModule getModule(ResourceLocation id) {
+    public static InitModule getModule(ResourceLocation id) {
         return MODULES_BY_ID.get(id);
     }
 
@@ -37,7 +38,7 @@ public class RenderModuleRegistry {
         MODULES_BY_ID.clear();
     }
 
-    public static ResourceLocation getModuleId(RenderModule initModule) {
+    public static ResourceLocation getModuleId(InitModule initModule) {
         return MODULES_BY_ID.inverse().get(initModule);
     }
 }

@@ -49,7 +49,7 @@ public class BlackHoleEntity extends LivingEntity {
         }
         if(level.isClientSide) {
             if(this.tickCount == 1){
-                attractorForce = new PointAttractorForce(this.position().add(0.0,0.25,0.0), 15.0f, 0.1f, 1.0f, true);
+                attractorForce = new PointAttractorForce(this.position().add(0.0,0.25,0.0), 15.0f, 0.1f, 1.0f, true, false);
                 vortexForce = new VortexForce(new Vec3(0.0, -1.0, 0.0), this.position().add(0.0,0.25,0.0), 10.0f, 0.05f, 1.0f);
             }
             ParticleSystemManager.getInstance().applyForceToParticles(position(), 15.0f, attractorForce, vortexForce);

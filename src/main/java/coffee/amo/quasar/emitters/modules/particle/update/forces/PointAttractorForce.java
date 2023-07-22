@@ -37,7 +37,8 @@ public class PointAttractorForce extends AbstractParticleForce {
                     Codec.FLOAT.fieldOf("range").forGetter(PointAttractorForce::getRange),
                     Codec.FLOAT.fieldOf("strength").forGetter(PointAttractorForce::getStrength),
                     Codec.FLOAT.fieldOf("falloff").forGetter(PointAttractorForce::getFalloff),
-                    Codec.BOOL.fieldOf("strengthByDistance").forGetter(PointAttractorForce::isStrengthByDistance)
+                    Codec.BOOL.fieldOf("strengthByDistance").forGetter(PointAttractorForce::isStrengthByDistance),
+                    Codec.BOOL.fieldOf("invertDistanceModifier").orElse(false).forGetter(PointAttractorForce::isInvertDistanceModifier)
             ).apply(instance, PointAttractorForce::new)
             );
     Supplier<Vec3> position;
@@ -58,21 +59,27 @@ public class PointAttractorForce extends AbstractParticleForce {
     public boolean isStrengthByDistance() {
         return strengthByDistance;
     }
+    boolean invertDistanceModifier = false;
+    public boolean isInvertDistanceModifier() {
+        return invertDistanceModifier;
+    }
 
-    public PointAttractorForce(Vec3 position, float range, float strength, float decay, boolean strengthByDistance) {
+    public PointAttractorForce(Vec3 position, float range, float strength, float decay, boolean strengthByDistance, boolean invertDistanceModifier) {
         this.position = () -> position;
         this.range = range;
         this.strength = strength;
         this.falloff = decay;
         this.strengthByDistance = strengthByDistance;
+        this.invertDistanceModifier = invertDistanceModifier;
     }
 
-    public PointAttractorForce(Supplier<Vec3> position, float range, float strength, float decay, boolean strengthByDistance) {
+    public PointAttractorForce(Supplier<Vec3> position, float range, float strength, float decay, boolean strengthByDistance, boolean invertDistanceModifier) {
         this.position = position;
         this.range = range;
         this.strength = strength;
         this.falloff = decay;
         this.strengthByDistance = strengthByDistance;
+        this.invertDistanceModifier = invertDistanceModifier;
     }
     @Override
     public void applyForce(QuasarParticle particle) {
@@ -81,8 +88,10 @@ public class PointAttractorForce extends AbstractParticleForce {
         float distance = (float)diff.length();
         if(distance < range) {
             float strength = this.strength;
-            if(strengthByDistance) {
+            if(strengthByDistance && !invertDistanceModifier) {
                 strength = strength * (1 - distance / range);
+            } else if(strengthByDistance && invertDistanceModifier) {
+                strength = strength * (distance / range) * 2;
             }
             particle.addForce(diff.normalize().scale(-strength));
         }
@@ -92,5 +101,10 @@ public class PointAttractorForce extends AbstractParticleForce {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.POINT_ATTRACTOR;
+    }
+
+    @Override
+    public PointAttractorForce copy() {
+        return new PointAttractorForce(position, range, strength, falloff, strengthByDistance, invertDistanceModifier);
     }
 }

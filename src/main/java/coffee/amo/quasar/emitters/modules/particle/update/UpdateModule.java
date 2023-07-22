@@ -23,4 +23,5 @@ public interface UpdateModule extends Module {
     default Codec<Module> getDispatchCodec() {
         return DISPATCH_CODEC;
     }
+
 }

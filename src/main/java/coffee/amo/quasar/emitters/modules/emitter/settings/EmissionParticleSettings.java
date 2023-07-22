@@ -3,6 +3,7 @@ package coffee.amo.quasar.emitters.modules.emitter.settings;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.function.Supplier;
@@ -24,7 +25,8 @@ public class EmissionParticleSettings {
         ).apply(instance, EmissionParticleSettings::new);
     });
 
-    RandomSource randomSource;
+    // this is sometimes null idk how
+    RandomSource randomSource = new LegacyRandomSource(69L);
     float particleSpeed;
     float baseParticleSize;
     float particleSizeVariation;
@@ -128,6 +130,10 @@ public class EmissionParticleSettings {
 
     public Supplier<Vec3> getInitialDirectionSupplier() {
         return initialDirection;
+    }
+
+    public void setInitialDirection(Vec3 scale) {
+        this.initialDirection = () -> scale;
     }
 
     public static class Builder {

@@ -1,0 +1,10 @@
+{
+    "emitter_module": {
+        "max_lifetime": 1,
+        "loop": false,
+        "rate": 1,
+        "count": 32
+    },
+    "emitter_settings": "quasar:swiftshot_shrapnel",
+    "particle_data": "quasar:swiftshot_shrapnel_data"
+}
