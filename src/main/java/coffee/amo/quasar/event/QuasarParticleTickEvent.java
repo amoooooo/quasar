@@ -1,6 +1,6 @@
 package coffee.amo.quasar.event;
 
-import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.client.particle.QuasarParticle;
 import net.minecraftforge.eventbus.api.Event;
 
 public class QuasarParticleTickEvent extends Event {

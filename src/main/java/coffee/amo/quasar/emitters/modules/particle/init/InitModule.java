@@ -1,9 +1,8 @@
 package coffee.amo.quasar.emitters.modules.particle.init;
 
-import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.Module;
 import coffee.amo.quasar.emitters.modules.ModuleType;
-import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleRegistry;
 import com.mojang.serialization.Codec;
 
 public interface InitModule extends Module {

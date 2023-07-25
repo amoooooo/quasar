@@ -1,6 +1,5 @@
 package coffee.amo.quasar.emitters.modules.particle.update.collsion;
 
-import coffee.amo.quasar.client.QuasarParticle;
 import coffee.amo.quasar.emitters.ParticleContext;
 import coffee.amo.quasar.emitters.ParticleEmitter;
 import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
@@ -10,9 +9,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 public class SubEmitterCollisionModule extends CollisionModule {
     public static final Codec<SubEmitterCollisionModule> CODEC = RecordCodecBuilder.create(instance -> instance.group(

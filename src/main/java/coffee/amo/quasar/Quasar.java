@@ -1,6 +1,6 @@
 package coffee.amo.quasar;
 
-import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
@@ -78,7 +78,7 @@ public class Quasar {
     public void onQuasarParticleTick(QuasarParticleTickEvent event){
         QuasarParticle particle = event.getParticle();
         if(particle.getDataId().toString().equals("quasar:swiftshot_data")){
-            particle.getForces().clear();
+            particle.getForces().removeIf(force -> force instanceof PointAttractorForce);
             List<LivingEntity> entities = particle.getLevel().getEntitiesOfClass(LivingEntity.class, particle.getBoundingBox().inflate(8));
             entities.forEach(entity -> {
                 if(entity instanceof Player) return;

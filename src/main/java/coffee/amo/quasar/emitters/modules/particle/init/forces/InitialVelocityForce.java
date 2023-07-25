@@ -1,6 +1,6 @@
 package coffee.amo.quasar.emitters.modules.particle.init.forces;
 
-import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.Module;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.init.InitModule;

@@ -1,10 +1,9 @@
 package coffee.amo.quasar;
 
-import coffee.amo.quasar.client.QuasarParticleDataListener;
+import coffee.amo.quasar.client.particle.QuasarParticleDataListener;
 import coffee.amo.quasar.command.QuasarParticleCommand;
 import coffee.amo.quasar.emitters.ParticleEmitterJsonListener;
 import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
-import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsJsonListener;
 import coffee.amo.quasar.emitters.modules.emitter.settings.ParticleSettingsJsonListener;
 import coffee.amo.quasar.emitters.modules.emitter.settings.ShapeSettingsJsonListener;

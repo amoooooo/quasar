@@ -14,9 +14,9 @@
             "seed": 1337,
             "fractal_type": "FBm"
         },
-        "strength": 0.45
+        "strength": 0.05
     },
-    "strength": 0.25,
+    "strength": 0.05,
     "falloff": 1.0,
     "module": "vector_field"
 }

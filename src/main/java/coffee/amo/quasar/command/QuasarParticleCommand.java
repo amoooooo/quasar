@@ -30,7 +30,7 @@ public class QuasarParticleCommand implements Command<CommandSourceStack> {
     public LiteralArgumentBuilder<CommandSourceStack> register() {
         LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("quasar");
         builder.then(Commands.argument("emitter", ResourceLocationArgument.id()).suggests(EMITTER_SUGGESTION_PROVIDER).then(Commands.argument("position", Vec3Argument.vec3()).executes(context1 -> {
-            ParticleEmitter emitter = (ParticleEmitter) ParticleEmitterRegistry.getEmitter(ResourceLocationArgument.getId(context1, "emitter")).instance();
+            ParticleEmitter emitter = ParticleEmitterRegistry.getEmitter(ResourceLocationArgument.getId(context1, "emitter")).instance();
             emitter.setPosition(Vec3Argument.getVec3(context1, "position"));
             emitter.setLevel(context1.getSource().getUnsidedLevel());
             ParticleSystemManager.getInstance().addParticleSystem(emitter);

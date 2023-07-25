@@ -1,4 +1,4 @@
-package coffee.amo.quasar.client;
+package coffee.amo.quasar.client.particle;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -28,7 +28,7 @@ public class QuasarParticleRenderType implements ParticleRenderType {
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         // overlay photoshop blend mode
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE,
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
         // opaque

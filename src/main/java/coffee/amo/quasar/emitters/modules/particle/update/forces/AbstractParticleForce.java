@@ -1,6 +1,6 @@
 package coffee.amo.quasar.emitters.modules.particle.update.forces;
 
-import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModule;
 
 public abstract class AbstractParticleForce implements UpdateModule {

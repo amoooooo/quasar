@@ -1,6 +1,6 @@
 {
     "emitter_module": {
-        "max_lifetime": 1,
+        "max_lifetime": 64,
         "loop": false,
         "rate": 1,
         "count": 1

@@ -1,7 +1,6 @@
 package coffee.amo.quasar.emitters;
 
-import coffee.amo.quasar.client.QuasarParticle;
-import net.minecraft.client.particle.Particle;
+import coffee.amo.quasar.client.particle.QuasarParticle;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 

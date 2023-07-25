@@ -1,7 +1,6 @@
-package coffee.amo.quasar.client;
+package coffee.amo.quasar.client.particle;
 
 import coffee.amo.quasar.Quasar;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;

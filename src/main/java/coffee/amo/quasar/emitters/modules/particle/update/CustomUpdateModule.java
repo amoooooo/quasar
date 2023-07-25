@@ -1,6 +1,6 @@
 package coffee.amo.quasar.emitters.modules.particle.update;
 
-import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import org.jetbrains.annotations.NotNull;
 

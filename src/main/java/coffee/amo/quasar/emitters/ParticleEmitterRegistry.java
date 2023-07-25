@@ -1,6 +1,6 @@
 package coffee.amo.quasar.emitters;
 
-import coffee.amo.quasar.client.QuasarParticleDataRegistry;
+import coffee.amo.quasar.client.particle.QuasarParticleDataRegistry;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsRegistry;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleRegistry;

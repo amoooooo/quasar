@@ -1,22 +1,27 @@
 {
+    "sprite_data": {
+        "sprite": "quasar:textures/particle/smoke.png",
+        "frame_count": 64,
+        "frame_time": 1.0,
+        "frame_width": 8,
+        "frame_height": 8
+    },
+    "render_style": "BILLBOARD",
     "init_modules": [
         "quasar:swiftshot_velocity"
     ],
     "update_modules": [],
     "collision_modules": [
-        "quasar:collision/die_on_collide",
-        "quasar:collision/swiftshot_shrapnel_sub"
     ],
     "forces": [
+        "quasar:force/vector_field/test_vector_field",
         "quasar:force/drag/test_drag",
-        "quasar:force/gravity/test_gravity",
-        "quasar:force/vector_field/test_vector_field"
+        "quasar:force/gravity/test_gravity"
     ],
     "render_modules": [
-        "quasar:trail/swiftshot_trail",
         "quasar:color/swiftshot_color"
     ],
-    "face_velocity": true,
+    "face_velocity": false,
     "velocity_stretch_factor": 8.0,
-    "should_collide": true
+    "should_collide": false
 }

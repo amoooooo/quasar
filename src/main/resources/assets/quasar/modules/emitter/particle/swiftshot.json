@@ -3,15 +3,15 @@
     "random_size": false,
     "random_lifetime": false,
     "initial_direction": [
-        1.0,
         0.0,
+        1.0,
         0.0
     ],
     "random_initial_direction": false,
     "random_initial_rotation": false,
     "particle_size_variation": 0.0,
-    "particle_lifetime": 150,
+    "particle_lifetime": 63,
     "particle_lifetime_variation": 0.0,
-    "particle_speed": 0.25,
-    "base_particle_size": 0.02
+    "particle_speed": 0.1,
+    "base_particle_size": 3.0
 }

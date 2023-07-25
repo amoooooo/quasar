@@ -1,9 +1,8 @@
-package coffee.amo.quasar.client;
+package coffee.amo.quasar.client.particle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
@@ -84,20 +83,26 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
                     ResourceLocation.CODEC.listOf().fieldOf("render_modules").xmap(
                             r -> r.stream().map(RenderModuleRegistry::getModule).collect(Collectors.toList()),
                             r -> r.stream().map(RenderModuleRegistry::getModuleId).collect(Collectors.toList())
-                    ).forGetter(QuasarParticleData::getRenderModules)
-            ).apply(i, (shouldCollide, faceVelocity, velocityStretchFactor, initModules, updateModules, collisionModules, forces, renderModules) -> {
+                    ).forGetter(QuasarParticleData::getRenderModules),
+                    SpriteData.CODEC.fieldOf("sprite_data").orElse(SpriteData.BLANK).forGetter(QuasarParticleData::getSpriteData),
+                    Codec.STRING.fieldOf("render_style").orElse("BILLBOARD").xmap(QuasarParticle.RenderStyle::valueOf, QuasarParticle.RenderStyle::name).forGetter(QuasarParticleData::getRenderStyle)
+            ).apply(i, (shouldCollide, faceVelocity, velocityStretchFactor, initModules, updateModules, collisionModules, forces, renderModules, spriteData, style) -> {
                         QuasarParticleData data = new QuasarParticleData(shouldCollide, faceVelocity, velocityStretchFactor);
                         data.initModules = initModules;
                         data.updateModules = updateModules;
                         data.collisionModules = collisionModules;
                         data.renderModules = renderModules;
                         data.forces = forces;
+                        data.spriteData = spriteData;
+                        data.renderStyle = style;
                         return data;
                     }
             )
     );
 
     public ResourceLocation registryId;
+    SpriteData spriteData;
+    QuasarParticle.RenderStyle renderStyle;
     EmissionParticleSettings particleSettings;
     public boolean shouldCollide = true;
     boolean faceVelocity = false;
@@ -141,6 +146,14 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
 
     public QuasarParticleData() {
         this(null, false, false, 0.0f);
+    }
+
+    public SpriteData getSpriteData() {
+        return spriteData;
+    }
+
+    public QuasarParticle.RenderStyle getRenderStyle() {
+        return renderStyle;
     }
 
     public void addInitModule(InitModule module) {
@@ -301,6 +314,8 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
         data.collisionModules = collisionModules;
         data.forces = forces;
         data.registryId = registryId;
+        data.spriteData = spriteData;
+        data.renderStyle = renderStyle;
         return data;
     }
 }

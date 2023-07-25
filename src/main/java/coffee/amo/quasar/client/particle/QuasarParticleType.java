@@ -1,4 +1,4 @@
-package coffee.amo.quasar.client;
+package coffee.amo.quasar.client.particle;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.particles.ParticleOptions;

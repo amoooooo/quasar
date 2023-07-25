@@ -1,6 +1,6 @@
 package coffee.amo.quasar.emitters.modules.particle.render;
 
-import coffee.amo.quasar.client.QuasarParticle;
+import coffee.amo.quasar.client.particle.QuasarParticle;
 import com.mojang.math.Vector4f;
 
 public class ColorOverVelocityModule extends ColorModule {

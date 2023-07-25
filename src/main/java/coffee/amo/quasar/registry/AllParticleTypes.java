@@ -2,7 +2,7 @@ package coffee.amo.quasar.registry;
 
 import coffee.amo.quasar.ParticleRegistry;
 import coffee.amo.quasar.client.CrackParticle;
-import coffee.amo.quasar.client.QuasarParticleData;
+import coffee.amo.quasar.client.particle.QuasarParticleData;
 import coffee.amo.quasar.client.FogParticle;
 import coffee.amo.quasar.emitters.ICustomParticleData;
 import net.minecraft.core.particles.ParticleOptions;

@@ -1,4 +1,4 @@
-package coffee.amo.quasar.client;
+package coffee.amo.quasar.client.particle;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
