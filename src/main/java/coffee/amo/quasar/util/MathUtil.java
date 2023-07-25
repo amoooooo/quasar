@@ -6,6 +6,10 @@ import net.minecraft.world.phys.Vec3;
 
 public class MathUtil {
 
+    public static Vector4f vec4fFromVec3(Vec3 vec3, float w) {
+        return new Vector4f((float) vec3.x, (float) vec3.y, (float) vec3.z, w);
+    }
+
     public static Vector4f[] copyVector4fArray(Vector4f[] array) {
         Vector4f[] copy = new Vector4f[array.length];
         for (int i = 0; i < array.length; i++) {

@@ -41,7 +41,6 @@ public class QuasarParticleCommand implements Command<CommandSourceStack> {
 
     @Override
     public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-
         return 0;
     }
 }

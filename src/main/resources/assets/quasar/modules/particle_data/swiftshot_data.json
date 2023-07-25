@@ -8,7 +8,8 @@
     },
     "render_style": "BILLBOARD",
     "init_modules": [
-        "quasar:swiftshot_velocity"
+        "quasar:swiftshot_velocity",
+        "quasar:smoke_random_init_rotation"
     ],
     "update_modules": [],
     "collision_modules": [
@@ -19,7 +20,7 @@
         "quasar:force/gravity/test_gravity"
     ],
     "render_modules": [
-        "quasar:color/swiftshot_color"
+        "quasar:color/smoke_color_over_lifetime"
     ],
     "face_velocity": false,
     "velocity_stretch_factor": 8.0,

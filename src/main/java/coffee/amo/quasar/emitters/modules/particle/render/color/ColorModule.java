@@ -1,7 +1,9 @@
-package coffee.amo.quasar.emitters.modules.particle.render;
+package coffee.amo.quasar.emitters.modules.particle.render.color;
 
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
+import coffee.amo.quasar.emitters.modules.particle.render.RenderData;
+import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
 import coffee.amo.quasar.util.CodecUtil;
 import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;

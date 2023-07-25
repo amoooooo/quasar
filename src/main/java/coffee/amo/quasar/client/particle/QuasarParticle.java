@@ -151,7 +151,6 @@ public class QuasarParticle extends Particle {
         renderStyle = data.renderStyle;
         spriteData = data.spriteData;
         this.initModules.forEach(m -> m.run(this));
-        this.roll = (float) Math.toRadians(Math.random() * 360);
     }
     public QuasarParticle() {
         super(null, 0, 0, 0);

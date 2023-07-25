@@ -3,10 +3,13 @@ package coffee.amo.quasar.emitters.modules;
 import coffee.amo.quasar.emitters.modules.particle.init.InitColorModule;
 import coffee.amo.quasar.emitters.modules.particle.init.InitModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.init.InitRandomColorModule;
+import coffee.amo.quasar.emitters.modules.particle.init.InitRandomRotationModule;
 import coffee.amo.quasar.emitters.modules.particle.init.forces.InitialVelocityForce;
-import coffee.amo.quasar.emitters.modules.particle.render.ColorModule;
+import coffee.amo.quasar.emitters.modules.particle.render.color.ColorModule;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.render.TrailModule;
+import coffee.amo.quasar.emitters.modules.particle.render.color.ColorOverTimeModule;
+import coffee.amo.quasar.emitters.modules.particle.render.color.ColorOverVelocityModule;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.update.collsion.DieOnCollisionModule;
 import coffee.amo.quasar.emitters.modules.particle.update.collsion.SubEmitterCollisionModule;
@@ -19,10 +22,13 @@ public interface ModuleType<T extends Module> {
     ModuleType<InitialVelocityForce> INITIAL_VELOCITY = registerInitModule("initial_velocity", InitialVelocityForce.CODEC);
     ModuleType<InitColorModule> INIT_COLOR = registerInitModule("init_color", InitColorModule.CODEC);
     ModuleType<InitRandomColorModule> INIT_RANDOM_COLOR = registerInitModule("init_random_color", InitRandomColorModule.CODEC);
+    ModuleType<InitRandomRotationModule> INIT_RANDOM_ROTATION = registerInitModule("init_random_rotation", InitRandomRotationModule.CODEC);
 
     // RENDER
     ModuleType<TrailModule> TRAIL = registerRenderModule("trail", TrailModule.CODEC);
     ModuleType<ColorModule> COLOR = registerRenderModule("color", ColorModule.CODEC);
+    ModuleType<ColorOverTimeModule> COLOR_OVER_LIFETIME = registerRenderModule("color_over_lifetime", ColorOverTimeModule.CODEC);
+    ModuleType<ColorOverVelocityModule> COLOR_OVER_VELOCITY = registerRenderModule("color_over_velocity", ColorOverVelocityModule.CODEC);
 
     // UPDATE
 
