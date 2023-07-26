@@ -4,6 +4,8 @@ import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
+import imgui.type.ImBoolean;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,6 +55,25 @@ public class WindForce extends AbstractParticleForce {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.WIND;
+    }
+    public ImBoolean shouldStay = new ImBoolean(true);
+
+    @Override
+    public boolean shouldRemove() {
+        return !shouldStay.get();
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        float[] windDirection = new float[]{(float)this.windDirection.x, (float)this.windDirection.y, (float)this.windDirection.z};
+        ImGui.dragFloat3("##Wind Direction " + this.hashCode(), windDirection);
+        this.windDirection = new Vec3(windDirection[0], windDirection[1], windDirection[2]);
+        float[] windSpeed = new float[]{this.windSpeed};
+        ImGui.dragFloat("##Wind Speed " + this.hashCode(), windSpeed);
+        this.windSpeed = windSpeed[0];
+        float[] strength = new float[]{this.strength};
+        ImGui.dragFloat("##Strength " + this.hashCode(), strength);
+        this.strength = strength[0];
     }
 
     @Override

@@ -3,6 +3,9 @@ package coffee.amo.quasar.emitters.modules.particle.update.forces;
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
+import imgui.ImGui;
+import imgui.type.ImBoolean;
+import imgui.type.ImFloat;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,6 +32,19 @@ public class DragForce extends AbstractParticleForce {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.DRAG;
+    }
+    public ImBoolean shouldStay = new ImBoolean(true);
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Drag Force #" + this.hashCode(), shouldStay)){
+            ImGui.text("Drag Force");
+            float[] strength = new float[]{this.strength};
+            ImGui.text("Strength");
+            ImGui.sameLine();
+            ImGui.dragFloat("##Strength " + this.hashCode(), strength);
+            this.strength = strength[0];
+        }
     }
 
     @Override

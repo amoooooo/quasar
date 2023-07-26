@@ -8,6 +8,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 public class ParticleEmitterRegistry {
     private static final BiMap<ResourceLocation, ParticleEmitter> EMITTERS_BY_ID = HashBiMap.create();
 
@@ -35,6 +37,10 @@ public class ParticleEmitterRegistry {
     }
 
     public static Iterable<ResourceLocation> getEmitterNames() {
+        return EMITTERS_BY_ID.keySet().stream().toList();
+    }
+
+    public static List<ResourceLocation> getEmitters() {
         return EMITTERS_BY_ID.keySet().stream().toList();
     }
 }

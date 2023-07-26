@@ -109,7 +109,7 @@ public class ParticleEmitter {
         if (level.isClientSide) {
             Vec3 particlePos = emitterSettingsModule.getEmissionShapeSettings().getPos();
             Vec3 particleDirection = emitterSettingsModule.getEmissionParticleSettings().getInitialDirection().scale(emitterSettingsModule.getEmissionParticleSettings().getParticleSpeed());
-            level.addParticle(data, particlePos.x(), particlePos.y(), particlePos.z(), particleDirection.x(), particleDirection.y(), particleDirection.z());
+            level.addParticle(data, true, particlePos.x(), particlePos.y(), particlePos.z(), particleDirection.x(), particleDirection.y(), particleDirection.z());
         }
     }
 

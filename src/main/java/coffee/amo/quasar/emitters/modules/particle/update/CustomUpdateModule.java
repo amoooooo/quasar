@@ -22,4 +22,9 @@ public class CustomUpdateModule implements UpdateModule {
     public ModuleType<?> getType() {
         return null;
     }
+
+    @Override
+    public void renderImGuiSettings() {
+
+    }
 }

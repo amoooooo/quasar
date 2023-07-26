@@ -8,6 +8,7 @@ import coffee.amo.quasar.util.CodecUtil;
 import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
 
 public class ColorModule implements RenderModule {
@@ -32,5 +33,15 @@ public class ColorModule implements RenderModule {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.COLOR;
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Color Settings")){
+            float[] col = new float[]{color.x(), color.y(), color.z(), color.w()};
+            if (ImGui.colorEdit4("Color" + this.hashCode(), col)) {
+                color = new Vector4f(col[0], col[1], col[2], col[3]);
+            }
+        }
     }
 }

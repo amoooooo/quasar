@@ -3,6 +3,7 @@ package coffee.amo.quasar.emitters.modules.particle.update.fields;
 import coffee.amo.quasar.util.FastNoiseLite;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Objects;
@@ -49,6 +50,18 @@ public class VectorField {
             float zNoise = noise.GetNoise(x + 200, y + 200, z + 200);
             return new Vec3(xNoise, yNoise, zNoise).normalize().scale(strength);
         });
+    }
+
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Vector Field")){
+            ImGui.text("Vector Field Settings");
+            float[] strength = new float[]{this.strength};
+            ImGui.text("Strength");
+            ImGui.sameLine();
+            ImGui.dragFloat("##Strength" + this.hashCode(), strength, 0.1f, 0, 100);
+            this.strength = strength[0];
+            noise.renderImGuiSettings();
+        }
     }
 
     public Vec3 getVector(Vec3 position) {

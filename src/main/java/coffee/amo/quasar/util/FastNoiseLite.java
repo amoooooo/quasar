@@ -57,6 +57,7 @@ package coffee.amo.quasar.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
 
 import java.util.Optional;
 
@@ -93,6 +94,10 @@ public class FastNoiseLite {
                         return noise;
                     }
             ));
+
+    public void renderImGuiSettings() {
+
+    }
     public enum NoiseType {
         OpenSimplex2,
         OpenSimplex2S,

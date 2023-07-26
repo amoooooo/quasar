@@ -6,6 +6,11 @@ import coffee.amo.quasar.util.TriFunction;
 import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
+import imgui.flag.ImGuiColorEditFlags;
+import imgui.type.ImFloat;
+import imgui.type.ImInt;
+import imgui.type.ImString;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
@@ -18,13 +23,13 @@ public class TrailSettings {
                     Codec.INT.fieldOf("trailFrequency").forGetter(settings -> settings.trailFrequency),
                     Codec.INT.fieldOf("trailLength").forGetter(settings -> settings.trailLength),
                     CodecUtil.VECTOR4F_CODEC.fieldOf("trailColor").xmap(
-                            s -> s == null ? new Vector4f(0.0f,0.0f,0.0f,1.0f) : s,
-                            s -> s == null ? new Vector4f(0.0f,0.0f,0.0f,1.0f) : s).forGetter(settings -> settings.trailColor),
+                            s -> s == null ? new Vector4f(0.0f, 0.0f, 0.0f, 1.0f) : s,
+                            s -> s == null ? new Vector4f(0.0f, 0.0f, 0.0f, 1.0f) : s).forGetter(settings -> settings.trailColor),
                     Codec.FLOAT.fieldOf("trailWidthModifier").forGetter(settings -> 1f),
                     ResourceLocation.CODEC.fieldOf("trailTexture").forGetter(settings -> settings.trailTexture),
                     Codec.FLOAT.fieldOf("trailPointModifier").forGetter(settings -> 1f)
             ).apply(instance, TrailSettings::new)
-            );
+    );
     protected int trailFrequency = 1;
     protected int trailLength = 20;
     protected Vector4f trailColor = new Vector4f(1, 1, 1, 1);
@@ -96,5 +101,21 @@ public class TrailSettings {
 
     public ResourceLocation getTrailTexture() {
         return trailTexture;
+    }
+
+    public void renderImGuiSettings() {
+        ImString trailTextureString = new ImString(trailTexture.toString());
+        ImGui.inputText("Trail Texture" + this.hashCode(), trailTextureString);
+        trailTexture = new ResourceLocation(trailTextureString.get());
+        ImInt trailFrequencyInt = new ImInt(trailFrequency);
+        ImGui.inputInt("Trail Frequency" + this.hashCode(), trailFrequencyInt);
+        trailFrequency = trailFrequencyInt.get();
+        ImInt trailLengthInt = new ImInt(trailLength);
+        ImGui.inputInt("Trail Length" + this.hashCode(), trailLengthInt);
+        trailLength = trailLengthInt.get();
+        float[] trailColorVector4f = new float[]{trailColor.x(), trailColor.y(), trailColor.z(), trailColor.w()};
+        ImGui.colorEdit4("Trail Color" + this.hashCode(), trailColorVector4f, ImGuiColorEditFlags.AlphaBar | ImGuiColorEditFlags.AlphaPreview);
+        trailColor = new Vector4f(trailColorVector4f[0], trailColorVector4f[1], trailColorVector4f[2], trailColorVector4f[3]);
+
     }
 }

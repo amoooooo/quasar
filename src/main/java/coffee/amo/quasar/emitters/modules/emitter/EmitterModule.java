@@ -171,4 +171,12 @@ public class EmitterModule implements BaseEmitterModule {
     public void setCount(int count) {
         this.count = count;
     }
+
+    public void setMaxLifetime(int lifetime) {
+        this.maxLifetime = lifetime;
+    }
+
+    public void setLoop(boolean b) {
+        this.loop = b;
+    }
 }

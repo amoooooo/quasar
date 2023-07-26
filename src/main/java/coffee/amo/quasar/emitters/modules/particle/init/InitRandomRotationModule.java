@@ -46,4 +46,9 @@ public class InitRandomRotationModule implements InitModule {
     public ModuleType<?> getType() {
         return ModuleType.INIT_RANDOM_ROTATION;
     }
+
+    @Override
+    public void renderImGuiSettings() {
+
+    }
 }

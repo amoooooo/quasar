@@ -8,6 +8,7 @@ import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.PointForce;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +19,7 @@ public class SubEmitterCollisionModule extends CollisionModule {
     public static final Codec<SubEmitterCollisionModule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("subemitter").forGetter(SubEmitterCollisionModule::getSubEmitter)
     ).apply(instance, SubEmitterCollisionModule::new));
-    private final ResourceLocation subEmitter;
+    private ResourceLocation subEmitter;
 
     public ResourceLocation getSubEmitter() {
         return subEmitter;
@@ -47,5 +48,17 @@ public class SubEmitterCollisionModule extends CollisionModule {
     @Override
     public @NotNull ModuleType<?> getType() {
         return ModuleType.SUB_EMITTER_COLLISION;
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.beginCombo("SubEmitter", subEmitter.toString())){
+            for(ResourceLocation location : ParticleEmitterRegistry.getEmitterNames()){
+                if(ImGui.selectable(location.toString(), location.equals(subEmitter))){
+                    subEmitter = location;
+                }
+            }
+            ImGui.endCombo();
+        }
     }
 }

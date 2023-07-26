@@ -24,4 +24,9 @@ public class RotationOverVelocityModule implements RenderModule {
     public ModuleType<?> getType() {
         return null;
     }
+
+    @Override
+    public void renderImGuiSettings() {
+
+    }
 }

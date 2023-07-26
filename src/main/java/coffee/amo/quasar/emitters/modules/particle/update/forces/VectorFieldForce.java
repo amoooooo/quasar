@@ -5,6 +5,8 @@ import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.update.fields.VectorField;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
+import imgui.type.ImBoolean;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,6 +45,25 @@ public class VectorFieldForce extends AbstractParticleForce {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.VECTOR_FIELD;
+    }
+    public ImBoolean shouldStay = new ImBoolean(true);
+
+    @Override
+    public boolean shouldRemove() {
+        return !shouldStay.get();
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Vector Field Force #"+this.hashCode(), shouldStay)){
+            ImGui.text("Vector Field Force");
+            float[] strength = new float[]{this.strength};
+            ImGui.text("Strength");
+            ImGui.sameLine();
+            ImGui.dragFloat("##Strength " + this.hashCode(), strength);
+            this.strength = strength[0];
+            vectorField.renderImGuiSettings();
+        }
     }
 
     @Override

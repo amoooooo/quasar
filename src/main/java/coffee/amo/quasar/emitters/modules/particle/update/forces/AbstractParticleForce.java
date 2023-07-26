@@ -30,5 +30,9 @@ public abstract class AbstractParticleForce implements UpdateModule {
         this.falloff = falloff;
     }
 
+    public boolean shouldRemove() {
+        return false;
+    }
+
     public abstract <T extends AbstractParticleForce> T copy();
 }

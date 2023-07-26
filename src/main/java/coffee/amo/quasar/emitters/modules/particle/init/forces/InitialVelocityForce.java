@@ -7,6 +7,7 @@ import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,6 +44,18 @@ public class InitialVelocityForce extends AbstractParticleForce implements InitM
     @Override
     public ModuleType<?> getType() {
         return ModuleType.INITIAL_VELOCITY;
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        float[] velocityDirection = new float[]{(float) this.velocityDirection.x, (float) this.velocityDirection.y, (float) this.velocityDirection.z};
+        if(ImGui.dragFloat3("Velocity Direction", velocityDirection, 0.01f, -1, 1, "%.2f")){
+            this.velocityDirection = new Vec3(velocityDirection[0], velocityDirection[1], velocityDirection[2]);
+        }
+        float[] strength = new float[]{this.strength};
+        if(ImGui.dragFloat("Strength", strength, 0.01f, 0, 100, "%.2f")){
+            this.strength = strength[0];
+        }
     }
 
     @Override

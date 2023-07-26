@@ -25,4 +25,9 @@ public class BounceModule implements UpdateModule {
     public ModuleType<?> getType() {
         return null;
     }
+
+    @Override
+    public void renderImGuiSettings() {
+
+    }
 }

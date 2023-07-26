@@ -9,4 +9,6 @@ public interface Module {
 
     @Nonnull
     ModuleType<?> getType();
+
+    void renderImGuiSettings();
 }

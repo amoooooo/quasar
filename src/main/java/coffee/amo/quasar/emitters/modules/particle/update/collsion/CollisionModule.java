@@ -27,6 +27,11 @@ public class CollisionModule implements UpdateModule {
     }
 
     @Override
+    public void renderImGuiSettings() {
+
+    }
+
+    @Override
     public Codec<Module> getDispatchCodec() {
         return null;
     }

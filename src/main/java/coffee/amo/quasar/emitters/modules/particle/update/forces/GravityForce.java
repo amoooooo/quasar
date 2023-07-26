@@ -3,6 +3,8 @@ package coffee.amo.quasar.emitters.modules.particle.update.forces;
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
+import imgui.ImGui;
+import imgui.type.ImBoolean;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -31,6 +33,24 @@ public class GravityForce extends AbstractParticleForce {
     public ModuleType<?> getType() {
         return ModuleType.GRAVITY;
     }
+    public ImBoolean shouldStay = new ImBoolean(true);
 
-    
+    @Override
+    public boolean shouldRemove() {
+        return !shouldStay.get();
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Gravity Force #" + this.hashCode(), shouldStay)){
+            ImGui.text("Gravity Force");
+            float[] strength = new float[]{this.strength};
+            ImGui.text("Strength");
+            ImGui.sameLine();
+            ImGui.dragFloat("##Strength " + this.hashCode(), strength);
+            this.strength = strength[0];
+        }
+    }
+
+
 }

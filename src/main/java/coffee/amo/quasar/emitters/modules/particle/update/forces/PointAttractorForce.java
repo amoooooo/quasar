@@ -4,6 +4,10 @@ import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
+import imgui.flag.ImGuiDataType;
+import imgui.type.ImBoolean;
+import imgui.type.ImFloat;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -103,8 +107,40 @@ public class PointAttractorForce extends AbstractParticleForce {
         return ModuleType.POINT_ATTRACTOR;
     }
 
+    public ImBoolean shouldStay = new ImBoolean(true);
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Point Attractor Force Settings #" + this.hashCode(), shouldStay)) {
+            ImGui.text("Point Attractor Force Settings");
+            float[] strength = new float[]{this.strength};
+            ImGui.text("Strength");
+            ImGui.sameLine();
+            ImGui.dragFloat("##Strength " + this.hashCode(), strength, 0.01f);
+            this.strength = strength[0];
+            ImFloat range = new ImFloat(this.getRange());
+            ImGui.text("Range");
+            ImGui.sameLine();
+            ImGui.inputFloat("##Range #" +this.hashCode(), range);
+            this.setRange(range.get());
+            float[] pos = new float[]{(float) this.getPosition().get().x, (float) this.getPosition().get().y, (float) this.getPosition().get().z};
+            ImGui.text("Position:");
+            ImGui.sameLine();
+            ImGui.dragFloat3("##Position: #" +this.hashCode(), pos);
+            this.setPosition(new Vec3(pos[0], pos[1], pos[2]));
+        }
+    }
+
+    @Override
+    public boolean shouldRemove() {
+        return !shouldStay.get();
+    }
+
     @Override
     public PointAttractorForce copy() {
         return new PointAttractorForce(position, range, strength, falloff, strengthByDistance, invertDistanceModifier);
+    }
+
+    public void setRange(float range) {
+        this.range = range;
     }
 }

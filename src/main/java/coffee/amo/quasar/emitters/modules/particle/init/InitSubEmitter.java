@@ -10,6 +10,7 @@ import coffee.amo.quasar.util.CodecUtil;
 import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,5 +45,17 @@ public class InitSubEmitter implements InitModule {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.INIT_SUB_EMITTER;
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.beginCombo("SubEmitter", subEmitter.toString())){
+            for(ResourceLocation location : ParticleEmitterRegistry.getEmitterNames()){
+                if(ImGui.selectable(location.toString(), location.equals(subEmitter))){
+                    subEmitter = location;
+                }
+            }
+            ImGui.endCombo();
+        }
     }
 }

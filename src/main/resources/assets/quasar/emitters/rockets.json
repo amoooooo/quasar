@@ -1,9 +1,9 @@
 {
     "emitter_module": {
-        "max_lifetime": 32,
+        "max_lifetime": 20,
         "loop": false,
         "rate": 2,
-        "count": 2
+        "count": 1
     },
     "emitter_settings": "quasar:rocket",
     "particle_data": "quasar:rocket"

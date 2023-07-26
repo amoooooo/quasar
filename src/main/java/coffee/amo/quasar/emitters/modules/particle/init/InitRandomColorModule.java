@@ -53,4 +53,9 @@ public class InitRandomColorModule implements InitModule {
     public ModuleType<?> getType() {
         return ModuleType.INIT_RANDOM_COLOR;
     }
+
+    @Override
+    public void renderImGuiSettings() {
+
+    }
 }

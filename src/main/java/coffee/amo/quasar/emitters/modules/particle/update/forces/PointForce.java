@@ -4,6 +4,9 @@ import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
+import imgui.type.ImBoolean;
+import imgui.type.ImFloat;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,6 +77,34 @@ public class PointForce extends AbstractParticleForce{
     @Override
     public ModuleType<?> getType() {
         return ModuleType.POINT;
+    }
+    public ImBoolean shouldStay = new ImBoolean(true);
+
+    @Override
+    public boolean shouldRemove() {
+        return !shouldStay.get();
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Point Force Settings #"+this.hashCode(), shouldStay)){
+            ImGui.text("Point Force Settings");
+            float[] strength = new float[]{this.strength};
+            ImGui.text("Strength");
+            ImGui.sameLine();
+            ImGui.dragFloat("##Strength " + this.hashCode(), strength, 0.01f);
+            this.strength = strength[0];
+            ImFloat range = new ImFloat(this.getRange());
+            ImGui.text("Range");
+            ImGui.sameLine();
+            ImGui.inputFloat("##Range #" +this.hashCode(), range);
+            this.setRange(range.get());
+            float[] pos = new float[]{(float) this.getPoint().get().x, (float) this.getPoint().get().y, (float) this.getPoint().get().z};
+            ImGui.text("Position:");
+            ImGui.sameLine();
+            ImGui.dragFloat3("##Position: #" +this.hashCode(), pos);
+            this.setPoint(new Vec3(pos[0], pos[1], pos[2]));
+        }
     }
 
     @Override

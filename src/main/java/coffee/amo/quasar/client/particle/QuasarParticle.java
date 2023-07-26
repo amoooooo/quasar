@@ -281,11 +281,7 @@ public class QuasarParticle extends Particle {
             if (entity instanceof LivingEntity && shouldCollide) {
                 LivingEntity livingEntity = (LivingEntity) entity;
                 if (livingEntity.isAlive()) {
-                    if (livingEntity.isOnFire()) {
-                        livingEntity.clearFire();
-                    }
-                    livingEntity.hurt(DamageSource.MAGIC, 1);
-                    stoppedByCollision = true;
+                    this.stoppedByCollision = true;
                 }
             }
         }

@@ -56,6 +56,10 @@ public class ParticleSystemManager {
         particleSystemsToAdd.add(emitter);
     }
 
+    public void removeDelayedParticleSystem(ParticleEmitter particleEmitter) {
+        particleSystemsToRemove.add(particleEmitter);
+    }
+
     public void clear() {
         particleEmitters.clear();
     }
@@ -65,5 +69,7 @@ public class ParticleSystemManager {
         particleSystemsToAdd.clear();
         particleEmitters.forEach(ParticleEmitter::tick);
         particleEmitters.removeIf(emitter -> emitter.isComplete);
+        particleEmitters.removeAll(particleSystemsToRemove);
+        particleSystemsToRemove.clear();
     }
 }

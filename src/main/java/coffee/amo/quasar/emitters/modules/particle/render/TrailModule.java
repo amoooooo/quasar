@@ -4,6 +4,7 @@ import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -40,5 +41,19 @@ public class TrailModule implements RenderModule {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.TRAIL;
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Trail Settings #" + this.hashCode())){
+            ImGui.treePush("Trail Settings" + this.hashCode());
+            for (TrailSettings settings : this.settings) {
+                if(ImGui.treeNode("Trail Settings " + this.settings.indexOf(settings) + "#" + settings.hashCode())){
+                    settings.renderImGuiSettings();
+                    ImGui.treePop();
+                }
+            }
+            ImGui.treePop();
+        }
     }
 }

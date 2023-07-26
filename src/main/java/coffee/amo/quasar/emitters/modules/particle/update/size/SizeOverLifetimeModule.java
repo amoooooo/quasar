@@ -23,4 +23,9 @@ public class SizeOverLifetimeModule implements UpdateModule {
     public ModuleType<?> getType() {
         return null;
     }
+
+    @Override
+    public void renderImGuiSettings() {
+
+    }
 }

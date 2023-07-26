@@ -28,4 +28,9 @@ public class RotationOverLifetimeModule implements RenderModule {
     public ModuleType<?> getType() {
         return null;
     }
+
+    @Override
+    public void renderImGuiSettings() {
+
+    }
 }

@@ -13,6 +13,9 @@
     ],
     "forces": [
         "quasar:force/gravity/rocket",
+        "quasar:force/point_attractor/rocket_point_attractor",
+        "quasar:force/vortex/rocket_vortex",
+        "quasar:force/drag/rocket_drag",
         "quasar:force/vector_field/rocket_field"
     ],
     "render_modules": [

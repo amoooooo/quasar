@@ -4,6 +4,10 @@ import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
+import imgui.flag.ImGuiDataType;
+import imgui.type.ImBoolean;
+import imgui.type.ImFloat;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -88,6 +92,34 @@ public class VortexForce extends AbstractParticleForce {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.VORTEX;
+    }
+
+    public ImBoolean shouldStay = new ImBoolean(true);
+
+    @Override
+    public boolean shouldRemove() {
+        return !shouldStay.get();
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.collapsingHeader("Vortex Force #"+this.hashCode(), shouldStay)){
+            ImGui.text("Vortex Force Settings");
+            float[] strength = new float[]{this.strength};
+            ImGui.dragFloat("##Strength " + this.hashCode(), strength, 0.01f);
+            this.strength = strength[0];
+            ImFloat range = new ImFloat(this.getRange());
+            ImGui.inputFloat("##Range #" + this.hashCode(), range);
+            this.setRange(range.get());
+            float[] pos = new float[]{(float) this.getVortexCenter().x, (float) this.getVortexCenter().y, (float) this.getVortexCenter().z};
+            ImGui.text("Vortex Center:");
+            ImGui.dragFloat3("##Pos: #" + this.hashCode(), pos);
+            this.setVortexCenter(new Vec3(pos[0], pos[1], pos[2]));
+            float[] axis = new float[]{(float) this.getVortexAxis().x, (float) this.getVortexAxis().y, (float) this.getVortexAxis().z};
+            ImGui.text("Vortex Axis:");
+            ImGui.dragFloat3("##Axis: #" + this.hashCode(), axis, 0.01f);
+            this.setVortexAxis(new Vec3(axis[0], axis[1], axis[2]));
+        }
     }
 
     @Override

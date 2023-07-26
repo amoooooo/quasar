@@ -6,6 +6,7 @@ import coffee.amo.quasar.util.CodecUtil;
 import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
 
 public class InitColorModule implements InitModule {
@@ -32,5 +33,13 @@ public class InitColorModule implements InitModule {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.INIT_COLOR;
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        float[] color = new float[]{this.color.x(), this.color.y(), this.color.z(), this.color.w()};
+        if(ImGui.colorPicker4("Color", color)){
+            this.color = new Vector4f(color[0], color[1], color[2], color[3]);
+        }
     }
 }

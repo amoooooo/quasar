@@ -9,6 +9,8 @@ import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import imgui.ImGui;
+import imgui.type.ImInt;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,5 +52,19 @@ public class TickSubEmitter implements UpdateModule {
     @Override
     public ModuleType<?> getType() {
         return ModuleType.TICK_SUB_EMITTER;
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        if(ImGui.beginCombo("SubEmitter", subEmitter.toString())){
+            for(ResourceLocation location : ParticleEmitterRegistry.getEmitterNames()){
+                if(ImGui.selectable(location.toString(), location.equals(subEmitter))){
+                    subEmitter = location;
+                }
+            }
+            ImGui.endCombo();
+        }
+        ImInt frequency = new ImInt(this.frequency);
+        ImGui.inputInt("Frequency" + this.hashCode(), frequency);
     }
 }

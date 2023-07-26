@@ -2,6 +2,7 @@ package coffee.amo.quasar.emitters.modules.particle.render;
 
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
+import imgui.ImGui;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,5 +32,12 @@ public class FaceDirectionModule implements RenderModule {
     @Override
     public ModuleType<?> getType() {
         return null;
+    }
+
+    @Override
+    public void renderImGuiSettings() {
+        float[] directionArray = new float[] {(float) direction.x, (float) direction.y, (float) direction.z};
+        ImGui.dragFloat3("Direction" + this.hashCode(), directionArray);
+        direction = new Vec3(directionArray[0], directionArray[1], directionArray[2]);
     }
 }
