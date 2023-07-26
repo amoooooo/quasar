@@ -1,0 +1,27 @@
+{
+    "sprite_data": {
+        "sprite": "quasar:textures/particle/wisp.png"
+    },
+    "render_style": "BILLBOARD",
+    "init_modules": [
+        "quasar:rocket"
+    ],
+    "update_modules": [],
+    "collision_modules": [
+        "quasar:collision/die_on_collide",
+        "quasar:collision/rocket_explode"
+    ],
+    "forces": [
+        "quasar:force/gravity/rocket",
+        "quasar:force/vector_field/rocket_field"
+    ],
+    "render_modules": [
+        "quasar:trail/rocket",
+        "quasar:trail/rocket_add",
+        "quasar:trail/rocket_hot",
+        "quasar:color/rocket"
+    ],
+    "face_velocity": true,
+    "velocity_stretch_factor": 4.0,
+    "should_collide": true
+}

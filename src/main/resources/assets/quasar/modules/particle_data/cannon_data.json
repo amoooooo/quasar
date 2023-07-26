@@ -1,0 +1,27 @@
+{
+    "sprite_data": {
+        "sprite": "minecraft:textures/block/iron_block.png"
+    },
+    "render_style": "CUBE",
+    "init_modules": [
+        "quasar:cannon_velocity",
+        "quasar:smoke_big_init",
+        "quasar:smoke_small_init"
+    ],
+    "update_modules": [
+        "quasar:basic_smoke_tick_sub"
+    ],
+    "collision_modules": [
+    ],
+    "forces": [
+        "quasar:force/drag/shrapnel_drag",
+        "quasar:force/gravity/shrapnel_gravity",
+        "quasar:force/vector_field/test_vector_field"
+    ],
+    "render_modules": [
+        "quasar:color/swiftshot_color"
+    ],
+    "face_velocity": true,
+    "velocity_stretch_factor": 0.0,
+    "should_collide": true
+}

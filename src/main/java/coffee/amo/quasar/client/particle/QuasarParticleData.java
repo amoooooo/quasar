@@ -2,6 +2,7 @@ package coffee.amo.quasar.client.particle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
@@ -95,7 +97,8 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
                         data.forces = forces;
                         data.spriteData = spriteData;
                         data.renderStyle = style;
-                        return data;
+                        data.renderType = new QuasarParticleRenderType().setTexture(spriteData.getSprite());
+                return data;
                     }
             )
     );
@@ -113,6 +116,7 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
     List<RenderModule> renderModules = new ArrayList<>();
     List<UpdateModule> updateModules = new ArrayList<>();
     List<CollisionModule> collisionModules = new ArrayList<>();
+    ParticleRenderType renderType;
 
 
     public QuasarParticleData(EmissionParticleSettings particleSettings) {
@@ -312,10 +316,11 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
         data.updateModules = updateModules;
         data.renderModules = renderModules;
         data.collisionModules = collisionModules;
-        data.forces = forces;
+        data.forces = forces.stream().map(AbstractParticleForce::copy).map(s -> (AbstractParticleForce) s).collect(Collectors.toList());
         data.registryId = registryId;
         data.spriteData = spriteData;
         data.renderStyle = renderStyle;
+        data.renderType = renderType;
         return data;
     }
 }

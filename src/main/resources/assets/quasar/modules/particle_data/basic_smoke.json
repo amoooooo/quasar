@@ -1,0 +1,24 @@
+{
+    "sprite_data": {
+        "sprite": "quasar:textures/special/blank.png"
+    },
+    "render_style": "CUBE",
+    "init_modules": [
+        "quasar:smoke_vel"
+    ],
+    "update_modules": [],
+    "collision_modules": [
+    ],
+    "forces": [
+        "quasar:force/vector_field/test_vector_field",
+        "quasar:force/point_force/basic_smoke_point",
+        "quasar:force/gravity/test_gravity",
+        "quasar:force/drag/test_drag"
+    ],
+    "render_modules": [
+        "quasar:color/rocket_smoke_color_over_lifetime"
+    ],
+    "face_velocity": false,
+    "velocity_stretch_factor": 0.0,
+    "should_collide": true
+}

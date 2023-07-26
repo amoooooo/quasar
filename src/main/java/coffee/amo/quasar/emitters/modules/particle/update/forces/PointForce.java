@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class PointForce extends AbstractParticleForce{
     public static final Codec<PointForce> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    Vec3.CODEC.fieldOf("point").forGetter(p -> p.getPoint().get()),
+                    Vec3.CODEC.fieldOf("point").orElse(new Vec3(69,69,96)).forGetter(p -> p.getPoint().get()),
                     Codec.FLOAT.fieldOf("range").forGetter(PointForce::getRange),
                     Codec.FLOAT.fieldOf("strength").forGetter(PointForce::getStrength),
                     Codec.FLOAT.fieldOf("falloff").forGetter(PointForce::getFalloff)
@@ -59,6 +59,7 @@ public class PointForce extends AbstractParticleForce{
 
     @Override
     public void applyForce(QuasarParticle particle) {
+        if(point == null) return;
         double dist = particle.getPos().subtract(point.get()).length();
         if(dist < range) {
             // apply force to particle to move away from the point

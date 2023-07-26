@@ -5,7 +5,6 @@ import coffee.amo.quasar.emitters.modules.particle.render.RenderData;
 import coffee.amo.quasar.emitters.modules.particle.render.TrailModule;
 import coffee.amo.quasar.emitters.modules.particle.update.collsion.CollisionModule;
 import coffee.amo.quasar.event.QuasarParticleTickEvent;
-import coffee.amo.quasar.registry.AllSpecialTextures;
 import coffee.amo.quasar.QuasarClient;
 import coffee.amo.quasar.emitters.ParticleContext;
 import coffee.amo.quasar.emitters.modules.particle.render.TrailSettings;
@@ -13,6 +12,7 @@ import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModule;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import coffee.amo.quasar.util.MathUtil;
+import cofh.core.init.CoreShaders;
 import cofh.core.util.helpers.vfx.Color;
 import cofh.core.util.helpers.vfx.RenderTypes;
 import cofh.core.util.helpers.vfx.VFXHelper;
@@ -74,10 +74,11 @@ public class QuasarParticle extends Particle {
         @Override
         public void begin(BufferBuilder builder, TextureManager textureManager) {
             RenderSystem.disableCull();
-            // transparent, additive blending
             RenderSystem.depthMask(false);
             RenderSystem.enableBlend();
-            // overlay photoshop blend mode
+
+            //
+            RenderSystem.setShader(() -> CoreShaders.PARTICLE_ADDITIVE_MULTIPLY);
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
@@ -127,6 +128,8 @@ public class QuasarParticle extends Particle {
     List<UpdateModule> updateModules = new ArrayList<>();
     List<CollisionModule> collisionModules = new ArrayList<>();
     SpriteData spriteData = SpriteData.BLANK;
+    ParticleRenderType renderType = RENDER_TYPE_FLAT;
+    float speed;
 
     public QuasarParticle(QuasarParticleData data, ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ) {
         super(world, x, y, z);
@@ -144,14 +147,20 @@ public class QuasarParticle extends Particle {
         this.collisionModules = data.collisionModules;
         this.forces = data.forces;
         this.subEmitters = data.subEmitters;
-        this.trailModules = data.initModules.stream().filter(m -> m instanceof TrailModule).map(m -> (TrailModule)m).collect(Collectors.toList());
+        this.trailModules = data.initModules.stream().filter(m -> m instanceof TrailModule).map(m -> (TrailModule) m).collect(Collectors.toList());
         this.scale = data.particleSettings.getParticleSize();
         this.lifetime = data.particleSettings.getParticleLifetime();
         this.dataId = data.registryId;
         renderStyle = data.renderStyle;
         spriteData = data.spriteData;
         this.initModules.forEach(m -> m.run(this));
+        this.oPitch = this.pitch;
+        this.oYaw = this.yaw;
+        this.oRoll = this.roll;
+        this.renderType = data.renderType;
+        this.speed = data.particleSettings.getParticleSpeed();
     }
+
     public QuasarParticle() {
         super(null, 0, 0, 0);
     }
@@ -159,6 +168,7 @@ public class QuasarParticle extends Particle {
     public List<ResourceLocation> getSubEmitters() {
         return subEmitters;
     }
+
     public void setScale(float scale) {
         this.scale = scale;
         this.setSize(scale * 0.5f, scale * 0.5f);
@@ -233,15 +243,18 @@ public class QuasarParticle extends Particle {
                 m.run(this);
             });
         }
-        if(!shouldCollide && !this.collisionModules.isEmpty()) {
+        if (!shouldCollide && !this.collisionModules.isEmpty()) {
             shouldCollide = true;
         }
         updateModules.forEach(m -> {
             m.run(this);
         });
-         forces.forEach(force -> {
+        forces.forEach(force -> {
             force.applyForce(this);
         });
+        xd *= speed;
+        yd *= speed;
+        zd *= speed;
 
         if (this.previousPosition.x == position.x) {
             this.stoppedByCollision = true;
@@ -254,16 +267,16 @@ public class QuasarParticle extends Particle {
         oYaw = yaw;
         oPitch = pitch;
         oRoll = roll;
-        if(faceVelocity){
+        if (faceVelocity) {
             motion = motion.normalize();
             pitch = (float) Math.atan2(motion.y, Math.sqrt(motion.x * motion.x + motion.z * motion.z));
             yaw = (float) Math.atan2(motion.x, motion.z);
-            if(renderStyle == RenderStyle.BILLBOARD){
+            if (renderStyle == RenderStyle.BILLBOARD) {
                 yaw += Math.PI / 2;
             }
         }
         super.tick();
-        List<Entity> entities = this.level.getEntities(null, this.getBoundingBox().inflate(scale*2f));
+        List<Entity> entities = this.level.getEntities(null, this.getBoundingBox().inflate(scale * 2f));
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity && shouldCollide) {
                 LivingEntity livingEntity = (LivingEntity) entity;
@@ -287,7 +300,9 @@ public class QuasarParticle extends Particle {
         previousPositions = null;
         super.remove();
     }
+
     private static final double MAXIMUM_COLLISION_VELOCITY_SQUARED = Mth.square(100.0D);
+
     @Override
     public void move(double pX, double pY, double pZ) {
         if (!this.stoppedByCollision) {
@@ -295,7 +310,7 @@ public class QuasarParticle extends Particle {
             double d1 = pY;
             double d2 = pZ;
             if (this.shouldCollide && this.hasPhysics && (pX != 0.0D || pY != 0.0D || pZ != 0.0D) && pX * pX + pY * pY + pZ * pZ < MAXIMUM_COLLISION_VELOCITY_SQUARED) {
-                Vec3 vec3 = Entity.collideBoundingBox((Entity)null, new Vec3(pX, pY, pZ), this.getBoundingBox(), this.level, List.of());
+                Vec3 vec3 = Entity.collideBoundingBox((Entity) null, new Vec3(pX, pY, pZ), this.getBoundingBox(), this.level, List.of());
                 pX = vec3.x;
                 pY = vec3.y;
                 pZ = vec3.z;
@@ -306,7 +321,7 @@ public class QuasarParticle extends Particle {
                 this.setLocationFromBoundingbox();
             }
 
-            if (Math.abs(d1) >= (double)1.0E-5F && Math.abs(pY) < (double)1.0E-5F) {
+            if (Math.abs(d1) >= (double) 1.0E-5F && Math.abs(pY) < (double) 1.0E-5F) {
                 this.stoppedByCollision = shouldCollide;
             }
 
@@ -329,9 +344,10 @@ public class QuasarParticle extends Particle {
     private float oPitch = 0;
     private float yaw = 0;
     private float oYaw = 0;
+
     @Override
     public void render(VertexConsumer builder, Camera camera, float partialTicks) {
-        if(renderData == null) {
+        if (renderData == null) {
             renderData = new RenderData(scale, pitch, yaw, roll, rCol, gCol, bCol, alpha);
         } else {
             renderData.setScale(scale);
@@ -342,6 +358,7 @@ public class QuasarParticle extends Particle {
             renderData.setG(gCol);
             renderData.setB(bCol);
             renderData.setA(alpha);
+            renderData.getTrails().clear();
         }
         renderModules.forEach(m -> m.apply(this, partialTicks, renderData));
         rCol = renderData.getR();
@@ -371,9 +388,9 @@ public class QuasarParticle extends Particle {
                 }
                 previousPositions[0] = new Vector4f(lX, lY, lZ, 1.0f);
             }
-            for(int t = 0; t < renderData.getTrails().size(); t++){
+            for (int t = 0; t < renderData.getTrails().size(); t++) {
                 TrailSettings trail = renderData.getTrails().get(t);
-                if(trail.getTrailFrequency() == 0) continue;
+                if (trail.getTrailFrequency() == 0) continue;
                 Vector4f[] trimmedPositions = new Vector4f[trail.getTrailLength()];
                 System.arraycopy(previousPositions, 0, trimmedPositions, 0, trail.getTrailLength());
                 Vector4f[] trailPoints = new Vector4f[trimmedPositions.length / trail.getTrailFrequency()];
@@ -383,7 +400,7 @@ public class QuasarParticle extends Particle {
                 QuasarClient.delayedRenders.add(ps -> {
                     if (previousPositions != null && previousPositions.length > 0) {
                         Color color = Color.fromFloat(rCol, gCol, bCol, alpha);
-                        if(trail.getTrailColor() != null) {
+                        if (trail.getTrailColor() != null) {
                             color = Color.fromRGBA((int) (trail.getTrailColor().x() * 255), (int) (trail.getTrailColor().y() * 255), (int) (trail.getTrailColor().z() * 255), (int) (trail.getTrailColor().w() * 255));
                         }
                         VFXHelper.renderStreamLine(
@@ -400,30 +417,18 @@ public class QuasarParticle extends Particle {
                 });
             }
         }
-        if (!emissive) {
-            RenderSystem.setShaderTexture(0, AllSpecialTextures.BLANK.getLocation());
-            rCol = 0.5f;
-            gCol = 0.5f;
-            bCol = 0.5f;
-            alpha = 1;
-        }
         float lerpedX = (float) (Mth.lerp(partialTicks, this.xo, this.x) - projectedView.x());
         float lerpedY = (float) (Mth.lerp(partialTicks, this.yo, this.y) - projectedView.y());
         float lerpedZ = (float) (Mth.lerp(partialTicks, this.zo, this.z) - projectedView.z());
 
-        int light = emissive ? LightTexture.FULL_BRIGHT : getLightColor(partialTicks);
+        int light = getLightColor(partialTicks);
         Vec3 motionDirection = new Vec3(xd, yd, zd).normalize();
-        // randomly warp the 24 cube vertices
         renderStyle.render(this, new QuasarParticleRenderData(motionDirection, new Vec3(lerpedX, lerpedY, lerpedZ), light, builder, ageMultiplier, partialTicks));
     }
 
     @Override
     public ParticleRenderType getRenderType() {
-        if (emissive) {
-            return RENDER_TYPE_EMISSIVE;
-        } else {
-            return RENDER_TYPE_FLAT;
-        }
+        return renderType;
     }
 
     public Vec3 getPos() {
@@ -458,10 +463,17 @@ public class QuasarParticle extends Particle {
         return age;
     }
 
-    public void setRotation(Vec3 rot) {
-        this.xRot = rot.x;
-        this.yRot = rot.y;
-        this.zRot = rot.z;
+    public void addRotation(Vec3 rot) {
+        this.yaw += (float) rot.x;
+        this.pitch += (float) rot.y;
+        this.roll += (float) rot.z;
+
+    }
+
+    public void overrideRotation(Vec3 rot) {
+        this.yaw = (float) rot.x;
+        this.pitch = (float) rot.y;
+        this.roll = (float) rot.z;
     }
 
     public void setColor(Vector4f color) {
@@ -513,7 +525,7 @@ public class QuasarParticle extends Particle {
                         QuasarParticle.CUBE[i * 4 + 2],
                         QuasarParticle.CUBE[i * 4 + 3]
                 };
-
+                RenderSystem.setShaderTexture(0, particle.spriteData.sprite);
                 for (int j = 0; j < 4; j++) {
                     Vec3 vec = faceVerts[j].scale(-1);
                     if (vec.z < 0 && particle.velocityStretchFactor != 0.0f) {
@@ -550,28 +562,27 @@ public class QuasarParticle extends Particle {
             // turn quat into pitch and yaw
             for (int j = 0; j < 4; j++) {
                 Vec3 vec = faceVerts[j].scale(-1);
-                if (vec.z < 0 && particle.velocityStretchFactor != 0.0f) {
-                    vec = new Vec3(vec.x, vec.y, vec.z * (1 + particle.velocityStretchFactor));
+                if (particle.velocityStretchFactor > 0f) {
+                    vec = new Vec3(vec.x * (1 + particle.velocityStretchFactor), vec.y, vec.z);
                 }
-                if(particle.faceVelocity) {
+                if (particle.faceVelocity) {
                     vec = vec
                             .xRot(lerpedRoll)
                             .zRot(lerpedPitch)
-                            .yRot(lerpedYaw)
-                            .scale(particle.scale * data.ageModifier)
-                            .add(data.lerpedPos);
-                } else {
-                    vec = MathUtil.rotateQuatReverse(vec, faceCameraRotation).zRot(lerpedRoll).scale(particle.scale * data.ageModifier).add(data.lerpedPos);
+                            .yRot(lerpedYaw);
                 }
+//                vec = vec.xRot(lerpedPitch).yRot(lerpedYaw).zRot(lerpedRoll);
+                vec = MathUtil.rotateQuatReverse(vec, faceCameraRotation).scale(particle.scale * data.ageModifier).add(data.lerpedPos);
+
                 float u = 0;
                 float v = 0;
-                if(j == 0) {
+                if (j == 0) {
                     u = 0;
                     v = 0;
-                } else if(j == 1) {
+                } else if (j == 1) {
                     u = 1;
                     v = 0;
-                } else if(j == 2) {
+                } else if (j == 2) {
                     u = 1;
                     v = 1;
                 } else {
@@ -598,8 +609,7 @@ public class QuasarParticle extends Particle {
                         .uv2(data.light)
                         .endVertex();
             }
-        })
-        ;
+        });
 
         private BiConsumer<QuasarParticle, QuasarParticleRenderData> renderFunction;
 

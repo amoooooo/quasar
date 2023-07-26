@@ -2,15 +2,10 @@ package coffee.amo.quasar.emitters.modules.particle.init;
 
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
-import coffee.amo.quasar.util.CodecUtil;
-import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class InitRandomRotationModule implements InitModule {
     public static final Codec<InitRandomRotationModule> CODEC = RecordCodecBuilder.create(i ->
@@ -34,7 +29,7 @@ public class InitRandomRotationModule implements InitModule {
             double x = Math.random() * (maxDegrees.x - minDegrees.x) + minDegrees.x;
             double y = Math.random() * (maxDegrees.y - minDegrees.y) + minDegrees.y;
             double z = Math.random() * (maxDegrees.z - minDegrees.z) + minDegrees.z;
-            particle.setRotation(new Vec3(Math.toRadians(x), Math.toRadians(y), Math.toRadians(z)));
+            particle.addRotation(new Vec3(Math.toRadians(x), Math.toRadians(y), Math.toRadians(z)));
         }
     }
 

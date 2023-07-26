@@ -1,13 +1,11 @@
 {
-    "strength": 1.0,
+    "strength": 2.0,
     "falloff": 1.0,
-    "strengthByDistance": true,
+    "strengthByDistance": false,
     "position": [
-        24.94669258357937,
-        -60.0,
-        -8.42995500218409
+        67.5, -58, 111.58
     ],
     "range": 15.0,
     "module": "point_attractor",
-    "invertDistanceModifier": true
+    "invertDistanceModifier": false
 }

@@ -1,9 +1,9 @@
 {
     "emitter_module": {
-        "max_lifetime": 64,
+        "max_lifetime": 1,
         "loop": false,
         "rate": 1,
-        "count": 1
+        "count": 128
     },
     "emitter_settings": "quasar:swiftshot_settings",
     "particle_data": "quasar:swiftshot_data"

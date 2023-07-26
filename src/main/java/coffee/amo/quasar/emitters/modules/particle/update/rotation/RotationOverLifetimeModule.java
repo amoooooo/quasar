@@ -17,7 +17,7 @@ public class RotationOverLifetimeModule implements UpdateModule {
 
     @Override
     public void run(QuasarParticle particle) {
-        particle.setRotation(rotationFunction.apply(particle.getAge()));
+        particle.addRotation(rotationFunction.apply(particle.getAge()));
     }
 
     @NotNull

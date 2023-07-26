@@ -45,7 +45,7 @@ public class TrailSettings {
         this.trailFrequency = trailFrequency;
         this.trailLength = trailLength;
         this.trailColor = trailColor;
-        this.trailWidthModifier = (width, ageScale) -> trailWidthModifier;
+        this.trailWidthModifier = (width, ageScale) -> (1 - width) * ageScale * trailWidthModifier;
         this.trailTexture = trailTexture;
         this.trailPointModifier = (point, index, velocity) -> point;
     }

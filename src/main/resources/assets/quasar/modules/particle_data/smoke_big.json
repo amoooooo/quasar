@@ -1,0 +1,30 @@
+{
+    "sprite_data": {
+        "sprite": "quasar:textures/particle/smoke.png",
+        "frame_count": 64,
+        "frame_time": 1.25,
+        "frame_width": 8,
+        "frame_height": 8
+    },
+    "render_style": "BILLBOARD",
+    "init_modules": [
+        "quasar:swiftshot_velocity",
+        "quasar:smoke_random_init_rotation"
+    ],
+    "update_modules": [],
+    "collision_modules": [
+    ],
+    "forces": [
+        "quasar:force/vortex/swiftshot_vortex",
+        "quasar:force/vector_field/test_vector_field",
+        "quasar:force/drag/smoke_big",
+        "quasar:force/gravity/test_gravity",
+        "quasar:force/point_force/smoke_point"
+    ],
+    "render_modules": [
+        "quasar:color/smoke_color_over_lifetime"
+    ],
+    "face_velocity": false,
+    "velocity_stretch_factor": 8.0,
+    "should_collide": true
+}

@@ -4,6 +4,7 @@ import cofh.lib.util.helpers.MathHelper;
 import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public class ColorGradient {
                     RGBPoint.CODEC.listOf().fieldOf("rgb_points").forGetter(ColorGradient::getPoints),
                     AlphaPoint.CODEC.listOf().fieldOf("alpha_points").forGetter(ColorGradient::getAlphaPoints)
             ).apply(instance, ColorGradient::new)
-            );
+    );
     // a list of RGB points that define the gradient. The first point should have a percent of 0, and the last point should have a percent of 1.
     // allows for a gradient to be defined with a list of points, rather than a start and end color.
     // the gradient will be linearly interpolated between the points.
@@ -30,7 +31,7 @@ public class ColorGradient {
     }
 
     public ColorGradient(RGBPoint[] points) {
-        this(points, new AlphaPoint[] {new AlphaPoint(0, 0), new AlphaPoint(1, 1)});
+        this(points, new AlphaPoint[]{new AlphaPoint(0, 0), new AlphaPoint(1, 1)});
     }
 
     public ColorGradient(List<RGBPoint> points, List<AlphaPoint> alphaPoints) {
@@ -38,30 +39,51 @@ public class ColorGradient {
     }
 
     public ColorGradient(Vec3 startColor, Vec3 endColor, float startAlpha, float endAlpha) {
-        this(new RGBPoint[] {new RGBPoint(0, startColor), new RGBPoint(1, endColor)}, new AlphaPoint[] {new AlphaPoint(0, startAlpha), new AlphaPoint(1, endAlpha)});
+        this(new RGBPoint[]{new RGBPoint(0, startColor), new RGBPoint(1, endColor)}, new AlphaPoint[]{new AlphaPoint(0, startAlpha), new AlphaPoint(1, endAlpha)});
     }
 
     public ColorGradient(Vec3 startColor, Vec3 endColor) {
-        this(new RGBPoint[] {new RGBPoint(0, startColor), new RGBPoint(1, endColor)});
+        this(new RGBPoint[]{new RGBPoint(0, startColor), new RGBPoint(1, endColor)});
     }
 
-    public Vector4f getColor(float percentage){
-        if (percentage < 0 || percentage > 1) {
-            return new Vector4f(1, 0, 1, 1);
+    public Vector4f getColor(float percentage) {
+        return MathUtil.vec4fFromVec3(getRGB(percentage), getAlpha(percentage));
+    }
+
+    private float getAlpha(float percentage) {
+        // if there are no alpha points, return the default alpha
+        if (alphaPoints.length == 0) {
+            return 1;
         }
-        if (percentage == 0) {
-            return MathUtil.vec4fFromVec3(points[0].getColor(), alphaPoints[0].getAlpha());
+        // if there is only one alpha point, return that alpha
+        if (alphaPoints.length == 1) {
+            return alphaPoints[0].alpha;
         }
-        if (percentage == 1) {
-            return MathUtil.vec4fFromVec3(points[points.length - 1].getColor(), alphaPoints[alphaPoints.length - 1].getAlpha());
+        // loop over the alpha points to find the two points that the percentage is between
+        for (int i = 0; i < alphaPoints.length - 1; i++) {
+            if (percentage >= alphaPoints[i].percent && percentage <= alphaPoints[i + 1].percent) {
+                // if the percentage is between two points, interpolate between them
+                return Mth.lerp((percentage - alphaPoints[i].percent) / (alphaPoints[i + 1].percent - alphaPoints[i].percent), alphaPoints[i].alpha, alphaPoints[i + 1].alpha);
+            }
         }
-        int i = 0;
-        while (points[i].getPercent() < percentage) {
-            i++;
+        // if the percentage is outside of the range of the alpha points, return the default alpha
+        return 1;
+    }
+
+    private Vec3 getRGB(float percentage){
+        // if there is only one point, return that color
+        if (points.length == 1) {
+            return points[0].color;
         }
-        float percent = (percentage - points[i - 1].getPercent()) / (points[i].getPercent() - points[i - 1].getPercent());
-        float alphaPercent = (percentage - alphaPoints[i - 1].getPercent()) / (alphaPoints[i].getPercent() - alphaPoints[i - 1].getPercent());
-        return MathUtil.vec4fFromVec3(points[i - 1].getColor().lerp(points[i].getColor(), percent), alphaPoints[i - 1].getAlpha() + (alphaPoints[i].getAlpha() - alphaPoints[i - 1].getAlpha()) * alphaPercent);
+        // loop over the points to find the two points that the percentage is between
+        for (int i = 0; i < points.length - 1; i++) {
+            if (percentage >= points[i].percent && percentage <= points[i + 1].percent) {
+                // if the percentage is between two points, interpolate between them
+                return points[i].color.lerp(points[i + 1].color, (percentage - points[i].percent) / (points[i + 1].percent - points[i].percent));
+            }
+        }
+        // if the percentage is outside of the range of the points, return the default color
+        return points[0].color;
     }
 
     public List<RGBPoint> getPoints() {
@@ -78,7 +100,7 @@ public class ColorGradient {
                         Codec.FLOAT.fieldOf("percent").forGetter(RGBPoint::getPercent),
                         Vec3.CODEC.fieldOf("color").forGetter(RGBPoint::getColor)
                 ).apply(instance, RGBPoint::new)
-                );
+        );
         float percent;
         Vec3 color;
 
@@ -102,7 +124,7 @@ public class ColorGradient {
                         Codec.FLOAT.fieldOf("percent").forGetter(AlphaPoint::getPercent),
                         Codec.FLOAT.fieldOf("alpha").forGetter(AlphaPoint::getAlpha)
                 ).apply(instance, AlphaPoint::new)
-                );
+        );
         float percent;
         float alpha;
 

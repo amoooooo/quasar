@@ -7,11 +7,15 @@ import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ParticleSystemManager {
     private static ParticleSystemManager instance;
-    private List<ParticleEmitter> particleEmitters = new ArrayList<>();
-    private List<ParticleEmitter> particleSystemsToRemove = new ArrayList<>();
+    private Queue<ParticleEmitter> particleEmitters = new ConcurrentLinkedQueue<>();
+    private Queue<ParticleEmitter> particleSystemsToRemove = new ConcurrentLinkedQueue<>();
+    private Queue<ParticleEmitter> particleSystemsToAdd = new ConcurrentLinkedQueue<>();
 
     public static ParticleSystemManager getInstance() {
         if (instance == null) {
@@ -44,18 +48,22 @@ public class ParticleSystemManager {
         particleEmitters.add(emitter);
     }
 
+    public void addDelayedParticleSystem(ParticleEmitter particleEmitter) {
+        ParticleEmitter emitter = particleEmitter;
+        EmitterInstantiationEvent event = new EmitterInstantiationEvent(emitter);
+        MinecraftForge.EVENT_BUS.post(event);
+        emitter = event.getEmitter();
+        particleSystemsToAdd.add(emitter);
+    }
+
     public void clear() {
         particleEmitters.clear();
     }
 
     public void tick() {
-        particleEmitters.removeAll(particleSystemsToRemove);
-        particleSystemsToRemove.clear();
-        for (ParticleEmitter particleEmitter : particleEmitters) {
-            particleEmitter.tick();
-            if(particleEmitter.isComplete){
-                particleSystemsToRemove.add(particleEmitter);
-            }
-        }
+        particleEmitters.addAll(particleSystemsToAdd);
+        particleSystemsToAdd.clear();
+        particleEmitters.forEach(ParticleEmitter::tick);
+        particleEmitters.removeIf(emitter -> emitter.isComplete);
     }
 }

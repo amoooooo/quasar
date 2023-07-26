@@ -31,6 +31,8 @@ public class TrailModule implements RenderModule {
     }
     @Override
     public void apply(QuasarParticle particle, float partialTicks, RenderData data) {
+        List<TrailSettings> settings = data.getTrails();
+        settings.addAll(this.settings);
         data.addTrails(settings);
     }
 

@@ -1,13 +1,13 @@
 {
-    "shape": "POINT",
+    "shape": "HEMISPHERE",
     "dimensions": [
-        1.0,
-        1.0,
-        1.0
+        0.1,
+        0.1,
+        0.1
     ],
     "rotation": [
         0.0,
-        0.0,
+        90.0,
         0.0
     ],
     "from_surface": false

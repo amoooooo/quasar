@@ -15,14 +15,16 @@
     "collision_modules": [
     ],
     "forces": [
-        "quasar:force/vector_field/test_vector_field",
+        "quasar:force/point_force/smoke_point",
+        "quasar:force/vortex/swiftshot_vortex",
         "quasar:force/drag/test_drag",
-        "quasar:force/gravity/test_gravity"
+        "quasar:force/gravity/test_gravity",
+        "quasar:force/vector_field/test_vector_field"
     ],
     "render_modules": [
         "quasar:color/smoke_color_over_lifetime"
     ],
     "face_velocity": false,
     "velocity_stretch_factor": 8.0,
-    "should_collide": false
+    "should_collide": true
 }

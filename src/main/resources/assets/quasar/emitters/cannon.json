@@ -1,0 +1,10 @@
+{
+    "emitter_module": {
+        "max_lifetime": 1,
+        "loop": false,
+        "rate": 1,
+        "count": 1
+    },
+    "emitter_settings": "quasar:cannon_settings",
+    "particle_data": "quasar:cannon_data"
+}

@@ -1,15 +1,13 @@
 package coffee.amo.quasar.emitters.modules;
 
-import coffee.amo.quasar.emitters.modules.particle.init.InitColorModule;
-import coffee.amo.quasar.emitters.modules.particle.init.InitModuleRegistry;
-import coffee.amo.quasar.emitters.modules.particle.init.InitRandomColorModule;
-import coffee.amo.quasar.emitters.modules.particle.init.InitRandomRotationModule;
+import coffee.amo.quasar.emitters.modules.particle.init.*;
 import coffee.amo.quasar.emitters.modules.particle.init.forces.InitialVelocityForce;
 import coffee.amo.quasar.emitters.modules.particle.render.color.ColorModule;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.render.TrailModule;
 import coffee.amo.quasar.emitters.modules.particle.render.color.ColorOverTimeModule;
 import coffee.amo.quasar.emitters.modules.particle.render.color.ColorOverVelocityModule;
+import coffee.amo.quasar.emitters.modules.particle.update.TickSubEmitter;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.update.collsion.DieOnCollisionModule;
 import coffee.amo.quasar.emitters.modules.particle.update.collsion.SubEmitterCollisionModule;
@@ -21,6 +19,7 @@ public interface ModuleType<T extends Module> {
     // INIOT
     ModuleType<InitialVelocityForce> INITIAL_VELOCITY = registerInitModule("initial_velocity", InitialVelocityForce.CODEC);
     ModuleType<InitColorModule> INIT_COLOR = registerInitModule("init_color", InitColorModule.CODEC);
+    ModuleType<InitSubEmitter> INIT_SUB_EMITTER = registerInitModule("init_sub_emitter", InitSubEmitter.CODEC);
     ModuleType<InitRandomColorModule> INIT_RANDOM_COLOR = registerInitModule("init_random_color", InitRandomColorModule.CODEC);
     ModuleType<InitRandomRotationModule> INIT_RANDOM_ROTATION = registerInitModule("init_random_rotation", InitRandomRotationModule.CODEC);
 
@@ -32,6 +31,7 @@ public interface ModuleType<T extends Module> {
 
     // UPDATE
 
+    ModuleType<TickSubEmitter> TICK_SUB_EMITTER = registerUpdateModule("tick_sub_emitter", TickSubEmitter.CODEC);
 
     // UPDATE - COLLISION
     ModuleType<DieOnCollisionModule> DIE_ON_COLLISION = registerUpdateModule("die_on_collision", DieOnCollisionModule.CODEC);

@@ -2,11 +2,13 @@ package coffee.amo.quasar.emitters;
 
 import coffee.amo.quasar.client.particle.QuasarParticleData;
 import coffee.amo.quasar.client.particle.QuasarParticleDataRegistry;
+import coffee.amo.quasar.client.particle.QuasarParticleRenderType;
 import coffee.amo.quasar.emitters.modules.emitter.EmitterModule;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsModule;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;

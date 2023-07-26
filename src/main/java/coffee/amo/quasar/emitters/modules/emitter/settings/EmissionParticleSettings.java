@@ -73,7 +73,7 @@ public class EmissionParticleSettings {
     }
 
     public float getParticleSpeed() {
-        return randomSpeed ? particleSpeed + randomSource.nextFloat() * particleSpeed : particleSpeed;
+        return randomSpeed ? particleSpeed + (randomSource.nextFloat() * 0.5f - 0.5f) * particleSpeed : particleSpeed;
     }
 
     public float getParticleSize(){

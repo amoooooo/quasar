@@ -1,5 +1,7 @@
 package coffee.amo.quasar.client.particle;
 
+import cofh.core.init.CoreShaders;
+import cofh.core.util.helpers.vfx.RenderTypes;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -7,8 +9,11 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL11C;
 
 public class QuasarParticleRenderType implements ParticleRenderType {
     private ResourceLocation texture;
@@ -21,19 +26,18 @@ public class QuasarParticleRenderType implements ParticleRenderType {
     }
     @Override
     public void begin(BufferBuilder builder, TextureManager textureManager) {
-        if(texture != null) {
-            RenderSystem.setShaderTexture(0, texture);
-        }
-        // transparent, additive blending
-        RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
-        // overlay photoshop blend mode
+        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        GL11.glEnable(GL11.GL_BLEND);
+
+        //
+        RenderSystem.setShader(() -> CoreShaders.PARTICLE_ADDITIVE_MULTIPLY);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
         // opaque
-        RenderSystem.depthMask(true);
-        RenderSystem.disableBlend();
+//			RenderSystem.depthMask(true);
+//			RenderSystem.disableBlend();
 //			RenderSystem.enableLighting();
 
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
@@ -44,5 +48,7 @@ public class QuasarParticleRenderType implements ParticleRenderType {
         tessellator.end();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
     }
 }

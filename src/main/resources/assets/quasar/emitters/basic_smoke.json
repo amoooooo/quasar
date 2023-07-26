@@ -1,0 +1,10 @@
+{
+    "emitter_module": {
+        "max_lifetime": 16,
+        "loop": false,
+        "rate": 1,
+        "count": 8
+    },
+    "emitter_settings": "quasar:basic_smoke",
+    "particle_data": "quasar:basic_smoke"
+}
