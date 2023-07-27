@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(modid = Quasar.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class QuasarClient {
-    private static ImGuiEditorOverlay editorScreen = null;
+    public static ImGuiEditorOverlay editorScreen = null;
     public static final KeyMapping EDITOR_KEY = new KeyMapping("key.quasar.editor", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_GRAVE, "key.categories.misc");
     public static final List<Consumer<PoseStack>> delayedRenders = new ArrayList<>();
     @SubscribeEvent

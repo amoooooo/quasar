@@ -8,26 +8,19 @@ import coffee.amo.quasar.emitters.modules.Module;
 import coffee.amo.quasar.emitters.modules.emitter.EmitterModule;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.*;
 import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.flag.ImGuiDataType;
-import imgui.internal.ImGuiContext;
 import imgui.type.ImBoolean;
 import imgui.type.ImDouble;
-import imgui.type.ImFloat;
 import imgui.type.ImInt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-
-import java.util.List;
 import java.util.Objects;
 
 public class ImGuiEditorOverlay {
     private ImGuiEditor editor = new ImGuiEditor();
     private ParticleEmitter currentlySelectedEmitterInstance = null;
-    private String input = "";
     private String currentlySelectedEmitter = "None";
     private Vec3 position = new Vec3(0, 0, 0);
 

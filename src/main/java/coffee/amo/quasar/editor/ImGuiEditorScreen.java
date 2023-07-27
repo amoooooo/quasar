@@ -4,6 +4,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
+
 public class ImGuiEditorScreen extends Screen {
     public ImGuiEditorScreen() {
         super(Component.empty());
