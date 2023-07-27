@@ -2,6 +2,7 @@ package coffee.amo.quasar.emitters.modules.emitter.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
@@ -18,6 +19,7 @@ public class EmissionShapeSettings {
                 Codec.BOOL.fieldOf("from_surface").forGetter(EmissionShapeSettings::isFromSurface)
         ).apply(instance, EmissionShapeSettings::new);
     });
+    public ResourceLocation registryName;
     Supplier<Vec3> dimensions;
     Supplier<Vec3> position;
     Supplier<Vec3> rotation;
@@ -50,7 +52,13 @@ public class EmissionShapeSettings {
     }
 
     public EmissionShapeSettings instance(){
-        return new EmissionShapeSettings(shape, dimensions, position, rotation, randomSource, fromSurface);
+        EmissionShapeSettings instance = new EmissionShapeSettings(shape, dimensions, position, rotation, randomSource, fromSurface);
+        instance.registryName = registryName;
+        return instance;
+    }
+
+    public ResourceLocation getRegistryId() {
+        return registryName;
     }
 
     public Vec3 getPos(){

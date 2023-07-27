@@ -7,6 +7,9 @@ import coffee.amo.quasar.emitters.ParticleSystemManager;
 import coffee.amo.quasar.emitters.modules.Module;
 import coffee.amo.quasar.emitters.modules.emitter.EmitterModule;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.*;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import imgui.ImGui;
 import imgui.type.ImBoolean;
 import imgui.type.ImDouble;
@@ -15,7 +18,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public class ImGuiEditorOverlay {
@@ -23,11 +34,26 @@ public class ImGuiEditorOverlay {
     private ParticleEmitter currentlySelectedEmitterInstance = null;
     private String currentlySelectedEmitter = "None";
     private Vec3 position = new Vec3(0, 0, 0);
+    private static final Path EMITTER_OUTPUT_PATH = Path.of("D:\\MC-Projects\\dndmod\\run\\quasar\\output\\emitters");
 
     public ImGuiEditorOverlay() {
         ImGui.createContext();
         editor.init();
         MinecraftForge.EVENT_BUS.register(editor);
+    }
+
+    public void save() throws IOException {
+        // save the particle emitter and all its components to jsons
+        if(currentlySelectedEmitterInstance == null) return;
+        DataResult<JsonElement> result = ParticleEmitter.CODEC.encodeStart(JsonOps.INSTANCE, currentlySelectedEmitterInstance);
+        if(result.error().isPresent()) {
+            System.out.println(result.error().get());
+            return;
+        }
+        JsonElement element = result.result().get();
+        Files.createDirectories(EMITTER_OUTPUT_PATH);
+        Path path = EMITTER_OUTPUT_PATH.resolve(currentlySelectedEmitterInstance.registryName.getPath() + ".json");
+        Files.write(path, element.toString().getBytes());
     }
 
     public void renderEditor() {
@@ -46,6 +72,13 @@ public class ImGuiEditorOverlay {
             renderEmitterSimulationSettings();
             renderForceSettings();
             renderRenderSettings();
+        }
+        if(ImGui.button("Save")){
+            try {
+                save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         if (ImGui.button("Reset")) {
             if (Minecraft.getInstance().level != null) {

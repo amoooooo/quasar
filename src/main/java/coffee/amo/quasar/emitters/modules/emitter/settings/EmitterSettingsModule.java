@@ -11,14 +11,15 @@ public class EmitterSettingsModule implements BaseEmitterModule {
         return instance.group(
                 ResourceLocation.CODEC.fieldOf("shape").xmap(
                         EmitterSettingsRegistry::getShapeSettings,
-                        EmitterSettingsRegistry::getShapeSettingsId
+                        EmissionShapeSettings::getRegistryId
                 ).forGetter(EmitterSettingsModule::getEmissionShapeSettings),
                 ResourceLocation.CODEC.fieldOf("particle").xmap(
                         EmitterSettingsRegistry::getParticleSettings,
-                        EmitterSettingsRegistry::getParticleSettingsId
+                        EmissionParticleSettings::getRegistryId
                 ).forGetter(EmitterSettingsModule::getEmissionParticleSettings)
         ).apply(instance, EmitterSettingsModule::new);
     });
+    public ResourceLocation registryName;
     EmissionShapeSettings emissionShapeSettings;
     EmissionParticleSettings emissionParticleSettings;
 
@@ -27,8 +28,14 @@ public class EmitterSettingsModule implements BaseEmitterModule {
         this.emissionParticleSettings = emissionParticleSettings;
     }
 
+    public ResourceLocation getRegistryId() {
+        return registryName;
+    }
+
     public EmitterSettingsModule instance() {
-        return new EmitterSettingsModule(emissionShapeSettings.instance(), emissionParticleSettings.instance());
+        EmitterSettingsModule instance =  new EmitterSettingsModule(emissionShapeSettings.instance(), emissionParticleSettings.instance());
+        instance.registryName = registryName;
+        return instance;
     }
 
     public EmissionShapeSettings getEmissionShapeSettings() {

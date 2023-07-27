@@ -152,6 +152,10 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
         this(null, false, false, 0.0f);
     }
 
+    public ResourceLocation getRegistryId() {
+        return registryId;
+    }
+
     public SpriteData getSpriteData() {
         return spriteData;
     }

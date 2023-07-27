@@ -2,6 +2,7 @@ package coffee.amo.quasar.emitters.modules.emitter.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.phys.Vec3;
@@ -26,6 +27,7 @@ public class EmissionParticleSettings {
     });
 
     // this is sometimes null idk how
+    public ResourceLocation registryName;
     RandomSource randomSource = new LegacyRandomSource(69L);
     float particleSpeed;
     float baseParticleSize;
@@ -69,7 +71,13 @@ public class EmissionParticleSettings {
     }
 
     public EmissionParticleSettings instance(){
-        return new EmissionParticleSettings(randomSource, particleSpeed, baseParticleSize, particleSizeVariation, particleLifetime, particleLifetimeVariation, initialDirection, randomInitialDirection, randomInitialRotation, randomSpeed, randomSize, randomLifetime);
+        EmissionParticleSettings instance = new EmissionParticleSettings(randomSource, particleSpeed, baseParticleSize, particleSizeVariation, particleLifetime, particleLifetimeVariation, initialDirection, randomInitialDirection, randomInitialRotation, randomSpeed, randomSize, randomLifetime);
+        instance.registryName = registryName;
+        return instance;
+    }
+
+    public ResourceLocation getRegistryId() {
+        return registryName;
     }
 
     public float getParticleSpeed() {

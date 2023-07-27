@@ -34,6 +34,7 @@ public class EmitterSettingsJsonListener extends SimpleJsonResourceReloadListene
                 continue;
             }
             EmitterSettingsModule data = dataResult.getOrThrow(false, Quasar.LOGGER::error);
+            data.registryName = id;
             EmitterSettingsRegistry.register(id, data);
         }
     }

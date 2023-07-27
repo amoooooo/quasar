@@ -32,11 +32,11 @@ public class ParticleEmitter {
                     EmitterModule.CODEC.fieldOf("emitter_module").forGetter(ParticleEmitter::getEmitterModule),
                     ResourceLocation.CODEC.fieldOf("emitter_settings").xmap(
                             EmitterSettingsRegistry::getSettings,
-                            EmitterSettingsRegistry::getSettingsId
+                            EmitterSettingsModule::getRegistryId
                     ).forGetter(ParticleEmitter::getEmitterSettingsModule),
                     ResourceLocation.CODEC.fieldOf("particle_data").xmap(
                             QuasarParticleDataRegistry::getData,
-                            QuasarParticleDataRegistry::getDataId
+                            QuasarParticleData::getRegistryId
                     ).forGetter(ParticleEmitter::getParticleData)
             ).apply(i, ParticleEmitter::new)
             );
