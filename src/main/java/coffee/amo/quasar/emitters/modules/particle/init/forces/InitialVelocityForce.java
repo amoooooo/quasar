@@ -8,6 +8,7 @@ import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticl
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import imgui.ImGui;
+import imgui.type.ImBoolean;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,18 +16,25 @@ public class InitialVelocityForce extends AbstractParticleForce implements InitM
     public static final Codec<InitialVelocityForce> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Vec3.CODEC.fieldOf("direction").forGetter(InitialVelocityForce::getVelocityDirection),
+                    Codec.BOOL.fieldOf("take_parent_rotation").orElse(true).forGetter(InitialVelocityForce::takesParentRotation),
                     Codec.FLOAT.fieldOf("strength").forGetter(InitialVelocityForce::getStrength),
                     Codec.FLOAT.fieldOf("falloff").forGetter(InitialVelocityForce::getFalloff)
             ).apply(instance, InitialVelocityForce::new));
-    Vec3 velocityDirection;
+    public Vec3 velocityDirection;
+    private boolean takeParentRotation = true;
     public Vec3 getVelocityDirection() {
         return velocityDirection;
     }
 
-    public InitialVelocityForce(Vec3 velocityDirection, float strength, float decay) {
+    public boolean takesParentRotation() {
+        return takeParentRotation;
+    }
+
+    public InitialVelocityForce(Vec3 velocityDirection, boolean takesParentRotation, float strength, float decay) {
         this.velocityDirection = velocityDirection;
         this.strength = strength;
         this.falloff = decay;
+        this.takeParentRotation = takesParentRotation;
     }
     @Override
     public void applyForce(QuasarParticle particle) {
@@ -56,11 +64,14 @@ public class InitialVelocityForce extends AbstractParticleForce implements InitM
         if(ImGui.dragFloat("Strength", strength, 0.01f, 0, 100, "%.2f")){
             this.strength = strength[0];
         }
+        ImBoolean takeParentRotation = new ImBoolean(this.takeParentRotation);
+        ImGui.checkbox("Take Parent Rotation", takeParentRotation);
+        this.takeParentRotation = takeParentRotation.get();
     }
 
     @Override
     public InitialVelocityForce copy() {
-        return new InitialVelocityForce(velocityDirection, strength, falloff);
+        return new InitialVelocityForce(velocityDirection, takeParentRotation, strength, falloff);
     }
 
     @Override

@@ -316,7 +316,7 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
 
     public QuasarParticleData instance() {
         QuasarParticleData data = new QuasarParticleData(particleSettings, shouldCollide, faceVelocity, velocityStretchFactor);
-        data.initModules = initModules;
+        data.initModules = initModules.stream().map(InitModule::copy).collect(Collectors.toList());
         data.updateModules = updateModules;
         data.renderModules = renderModules;
         data.collisionModules = collisionModules;

@@ -17,4 +17,8 @@ public interface InitModule extends Module {
         return DISPATCH_CODEC;
     }
     void run(QuasarParticle particle);
+
+    default InitModule copy(){
+        return this;
+    }
 }

@@ -2,8 +2,10 @@ package coffee.amo.quasar;
 
 import coffee.amo.quasar.client.particle.QuasarParticleDataListener;
 import coffee.amo.quasar.command.QuasarParticleCommand;
+import coffee.amo.quasar.editor.Gizmo;
 import coffee.amo.quasar.editor.ImGuiEditorOverlay;
 import coffee.amo.quasar.editor.ImGuiEditorScreen;
+import coffee.amo.quasar.editor.ImGuiGizmos;
 import coffee.amo.quasar.emitters.ParticleEmitterJsonListener;
 import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsJsonListener;
@@ -15,8 +17,18 @@ import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleJsonListen
 import coffee.amo.quasar.registry.AllParticleTypes;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -25,6 +37,8 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +49,16 @@ public class QuasarClient {
     public static ImGuiEditorOverlay editorScreen = null;
     public static final KeyMapping EDITOR_KEY = new KeyMapping("key.quasar.editor", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_GRAVE, "key.categories.misc");
     public static final List<Consumer<PoseStack>> delayedRenders = new ArrayList<>();
+    public static EntityType<?> ZOMBIE = null;
+    public static Gizmo xGizmo = new Gizmo(AABB.ofSize(Vec3.ZERO, 0, 0, 0), 1, 0, 0, 1, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO);
+    public static Gizmo yGizmo = new Gizmo(AABB.ofSize(Vec3.ZERO, 0, 0, 0), 0, 1, 0, 1, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO);
+    public static Gizmo zGizmo = new Gizmo(AABB.ofSize(Vec3.ZERO, 0, 0, 0), 0, 0, 1, 1, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO);
+    public static double mouseX = 0;
+    public static double mouseY = 0;
+
     @SubscribeEvent
-    public static void renderTranslucent(RenderLevelStageEvent event){
-        if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+    public static void renderTranslucent(RenderLevelStageEvent event) {
+        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
             PoseStack stack = event.getPoseStack();
             stack.pushPose();
             Vec3 pos = event.getCamera().getPosition();
@@ -45,8 +66,12 @@ public class QuasarClient {
             delayedRenders.forEach(consumer -> consumer.accept(stack));
             stack.popPose();
         }
-        if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
+        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
+            if (ZOMBIE == null) {
+                ZOMBIE = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation("minecraft:zombie"));
+            }
             delayedRenders.clear();
+            ImGuiGizmos.renderGizmos(event.getPoseStack(), event.getCamera(), editorScreen, event.getPartialTick());
         }
     }
 
@@ -68,30 +93,85 @@ public class QuasarClient {
         ParticleEmitterJsonListener.register(event);
     }
 
-    public static void registerKeys(RegisterKeyMappingsEvent event){
+    public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(EDITOR_KEY);
     }
 
     @SubscribeEvent
-    public static void registerClientCommands(RegisterClientCommandsEvent event){
+    public static void registerClientCommands(RegisterClientCommandsEvent event) {
         event.getDispatcher().register(QuasarParticleCommand.CMD.register());
     }
 
+    public static Gizmo currentlySelectedGizmo = null;
+    private static Vec3 gizmoGrabOffset = Vec3.ZERO;
+
     @SubscribeEvent
     public static void onClientTick(TickEvent.RenderTickEvent event) {
-        if(editorScreen == null) {
+        if (editorScreen == null) {
             editorScreen = new ImGuiEditorOverlay();
         }
 
-        if(event.phase == TickEvent.Phase.END){
+        if (event.phase == TickEvent.Phase.END) {
             editorScreen.renderEditor();
+            if (editorScreen.currentlySelectedEmitterInstance != null) {
+                if (currentlySelectedGizmo != null) {
+                    Vec3 emitterPos = editorScreen.currentlySelectedEmitterInstance.getEmitterModule().getPosition();
+                    // move emitter to player look pos on the axis of the gizmo keeping the offset from the gizmo
+                    HitResult result = Minecraft.getInstance().hitResult;
+                    if (result instanceof BlockHitResult bhr) {
+                        Vec3 rayPos = bhr.getLocation();
+                        Vec3 newPos = Vec3.ZERO;
+                        if (currentlySelectedGizmo == xGizmo) {
+                            newPos = new Vec3(rayPos.x - gizmoGrabOffset.x, emitterPos.y, emitterPos.z);
+                        }
+                        if (currentlySelectedGizmo == yGizmo) {
+                            newPos = new Vec3(emitterPos.x, rayPos.y - gizmoGrabOffset.y, emitterPos.z);
+                        }
+                        if (currentlySelectedGizmo == zGizmo) {
+                            newPos = new Vec3(emitterPos.x, emitterPos.y, rayPos.z - gizmoGrabOffset.z);
+                        }
+                        editorScreen.currentlySelectedEmitterInstance.getEmitterModule().setPosition(newPos);
+                        editorScreen.position = newPos;
+                    }
+
+                }
+            }
         }
     }
 
     @SubscribeEvent
-    public static void onKeyInput(InputEvent.Key event){
-        if(EDITOR_KEY.consumeClick()){
+    public static void onKeyInput(InputEvent.Key event) {
+        if (EDITOR_KEY.consumeClick()) {
             Minecraft.getInstance().setScreen(new ImGuiEditorScreen());
+        }
+    }
+
+    public static boolean down = false;
+
+    @SubscribeEvent
+    public static void onMouseClick(InputEvent.MouseButton event) {
+        if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !down && event.getAction() == InputConstants.PRESS) {
+            down = true;
+            if (editorScreen.currentlySelectedEmitterInstance != null) {
+                // check if mouse is in aabb
+                if (xGizmo.isMouseInAABB()) {
+                    currentlySelectedGizmo = xGizmo;
+                    gizmoGrabOffset = xGizmo.intersectionPoint.subtract(editorScreen.currentlySelectedEmitterInstance.getEmitterModule().getPosition()).multiply(new Vec3(1, 0, 0));
+                }
+                if (yGizmo.isMouseInAABB() && currentlySelectedGizmo == null) {
+                    currentlySelectedGizmo = yGizmo;
+                    gizmoGrabOffset = yGizmo.intersectionPoint.subtract(editorScreen.currentlySelectedEmitterInstance.getEmitterModule().getPosition()).multiply(new Vec3(0, 1, 0));
+                }
+                if (zGizmo.isMouseInAABB() && currentlySelectedGizmo == null) {
+                    currentlySelectedGizmo = zGizmo;
+                    gizmoGrabOffset = zGizmo.intersectionPoint.subtract(editorScreen.currentlySelectedEmitterInstance.getEmitterModule().getPosition()).multiply(new Vec3(0, 0, 1));
+                }
+            }
+        }
+        if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && down && event.getAction() == InputConstants.RELEASE) {
+            down = false;
+            currentlySelectedGizmo = null;
+            gizmoGrabOffset = Vec3.ZERO;
         }
     }
 }

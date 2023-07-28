@@ -90,6 +90,18 @@ public class EmissionShapeSettings {
         this.position = () -> position;
     }
 
+    public void setShape(EmissionShape shape) {
+        this.shape = shape;
+    }
+
+    public void setDimensions(Vec3 dimensions) {
+        this.dimensions = () -> dimensions;
+    }
+
+    public void setRotation(Vec3 rotation) {
+        this.rotation = () -> rotation;
+    }
+
     public static class Builder {
         private Supplier<Vec3> dimensions;
         private Supplier<Vec3> position;

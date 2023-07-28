@@ -6,6 +6,7 @@ import coffee.amo.quasar.client.particle.QuasarParticleRenderType;
 import coffee.amo.quasar.emitters.modules.emitter.EmitterModule;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsModule;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsRegistry;
+import coffee.amo.quasar.emitters.modules.particle.init.forces.InitialVelocityForce;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -109,7 +110,18 @@ public class ParticleEmitter {
         if (level.isClientSide) {
             Vec3 particlePos = emitterSettingsModule.getEmissionShapeSettings().getPos();
             Vec3 particleDirection = emitterSettingsModule.getEmissionParticleSettings().getInitialDirection().scale(emitterSettingsModule.getEmissionParticleSettings().getParticleSpeed());
-            level.addParticle(data, true, particlePos.x(), particlePos.y(), particlePos.z(), particleDirection.x(), particleDirection.y(), particleDirection.z());
+            QuasarParticleData d2 = data.instance();
+            d2.getInitModules().stream().filter(force -> force instanceof InitialVelocityForce).forEach(f -> {
+                InitialVelocityForce force = (InitialVelocityForce) f;
+                if(force.takesParentRotation()){
+                    force.velocityDirection = force.velocityDirection
+                            .xRot((float) -Math.toRadians(emitterSettingsModule.getEmissionShapeSettings().getRotation().x))
+                            .yRot((float) -Math.toRadians(emitterSettingsModule.getEmissionShapeSettings().getRotation().y))
+                            .zRot((float) -Math.toRadians(emitterSettingsModule.getEmissionShapeSettings().getRotation().z));
+                    float e = 0;
+                }
+            });
+            level.addParticle(d2, true, particlePos.x(), particlePos.y(), particlePos.z(), particleDirection.x(), particleDirection.y(), particleDirection.z());
         }
     }
 

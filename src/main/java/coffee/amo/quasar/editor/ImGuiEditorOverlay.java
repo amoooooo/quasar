@@ -1,11 +1,13 @@
 package coffee.amo.quasar.editor;
 
+import coffee.amo.quasar.QuasarClient;
 import coffee.amo.quasar.client.particle.QuasarParticleData;
 import coffee.amo.quasar.emitters.ParticleEmitter;
 import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
 import coffee.amo.quasar.emitters.ParticleSystemManager;
 import coffee.amo.quasar.emitters.modules.Module;
 import coffee.amo.quasar.emitters.modules.emitter.EmitterModule;
+import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionShape;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.*;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
@@ -31,10 +33,11 @@ import java.util.Objects;
 
 public class ImGuiEditorOverlay {
     private ImGuiEditor editor = new ImGuiEditor();
-    private ParticleEmitter currentlySelectedEmitterInstance = null;
+    public ParticleEmitter currentlySelectedEmitterInstance = null;
     private String currentlySelectedEmitter = "None";
-    private Vec3 position = new Vec3(0, 0, 0);
+    public Vec3 position = new Vec3(0, 0, 0);
     private static final Path EMITTER_OUTPUT_PATH = Path.of("D:\\MC-Projects\\dndmod\\run\\quasar\\output\\emitters");
+    public boolean localGizmos = false;
 
     public ImGuiEditorOverlay() {
         ImGui.createContext();
@@ -61,7 +64,6 @@ public class ImGuiEditorOverlay {
         editor.renderDrawData(ImGui.getDrawData());
         editor.newFrame();
 
-        ImGui.showDemoWindow();
         ImGui.begin("Editor");
         ImGui.text("Emitter:");
         renderEmitterDropdown();
@@ -121,6 +123,9 @@ public class ImGuiEditorOverlay {
         ImBoolean loop = new ImBoolean(module.getLoop());
         ImGui.checkbox("Loop", loop);
         module.setLoop(loop.get());
+        ImBoolean localGizmos = new ImBoolean(this.localGizmos);
+        ImGui.checkbox("Local Gizmos", localGizmos);
+        this.localGizmos = localGizmos.get();
     }
 
     private void renderEmitterDropdown() {
@@ -211,11 +216,30 @@ public class ImGuiEditorOverlay {
             ImDouble y = new ImDouble(position.y);
             ImDouble z = new ImDouble(position.z);
             ImGui.begin("Emitter Simulation Settings");
+            if(ImGui.beginCombo("##Shape", currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getShape().name())){
+                for (int i = 0; i < EmissionShape.values().length; i++) {
+                    boolean isSelected = currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getShape().equals(EmissionShape.values()[i]);
+                    if (ImGui.selectable(EmissionShape.values()[i].name(), isSelected)) {
+                        currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().setShape(EmissionShape.values()[i]);
+                    }
+                    if (isSelected) {
+                        ImGui.setItemDefaultFocus();
+                    }
+                }
+                ImGui.endCombo();
+            }
+            ImGui.text("Dimensions:");
+            float[] dimensions = new float[]{(float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().x, (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().y, (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().z};
+            ImGui.dragFloat3("##Dimensions", dimensions);
+            currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().setDimensions(new Vec3(dimensions[0], dimensions[1], dimensions[2]));
             ImGui.text("Position:");
-            ImGui.inputDouble("X: ", x);
-            ImGui.inputDouble("Y: ", y);
-            ImGui.inputDouble("Z: ", z);
-            position = new Vec3(x.get(), y.get(), z.get());
+            float[] pos = new float[]{(float) position.x, (float) position.y, (float) position.z};
+            ImGui.dragFloat3("##Position", pos);
+            position = new Vec3(pos[0], pos[1], pos[2]);
+            ImGui.text("Rotation:");
+            float[] rot = new float[]{(float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().x(), (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().y(), (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().z()};
+            ImGui.dragFloat3("##Rotation", rot);
+            currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().setRotation(new Vec3(rot[0], rot[1], rot[2]));
             if (ImGui.button("Set pos from ray")) {
                 HitResult ray = Minecraft.getInstance().hitResult;
                 if (ray != null) {
