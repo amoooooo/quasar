@@ -1,34 +1,40 @@
 package coffee.amo.quasar.editor;
 
-import coffee.amo.quasar.QuasarClient;
 import coffee.amo.quasar.client.particle.QuasarParticleData;
 import coffee.amo.quasar.emitters.ParticleEmitter;
 import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
 import coffee.amo.quasar.emitters.ParticleSystemManager;
+import coffee.amo.quasar.emitters.anchors.AnchorPoint;
 import coffee.amo.quasar.emitters.modules.Module;
 import coffee.amo.quasar.emitters.modules.emitter.EmitterModule;
-import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionShape;
+import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
+import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionShapeSettings;
+import coffee.amo.quasar.emitters.modules.emitter.settings.shapes.AbstractEmitterShape;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.*;
 import com.google.gson.JsonElement;
+import com.mojang.math.Vector3f;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import imgui.ImGui;
+import imgui.flag.ImGuiDataType;
 import imgui.type.ImBoolean;
 import imgui.type.ImDouble;
+import imgui.type.ImFloat;
 import imgui.type.ImInt;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ImGuiEditorOverlay {
@@ -38,6 +44,13 @@ public class ImGuiEditorOverlay {
     public Vec3 position = new Vec3(0, 0, 0);
     private static final Path EMITTER_OUTPUT_PATH = Path.of("D:\\MC-Projects\\dndmod\\run\\quasar\\output\\emitters");
     public boolean localGizmos = false;
+    public Entity currentlySelectedEntity = null;
+    public ModelPart currentlySelectedEntityModelPart = null;
+    public String currentlySelectedEntityModelPartName = "root";
+    public ModelPart root = null;
+    public List<String> currentlySelectedEntityModelParts = null;
+    public Map<String, ModelPart> modelParts = null;
+    public boolean renderGizmos = true;
 
     public ImGuiEditorOverlay() {
         ImGui.createContext();
@@ -106,6 +119,48 @@ public class ImGuiEditorOverlay {
             currentlySelectedEmitter = "None";
         }
         ImGui.end();
+
+        ImGui.begin("Anchor");
+        Vector3f localOffset = AnchorPoint.TEST_POINT.localOffset;
+        float[] anchorPos = new float[]{(float) localOffset.x(), (float) localOffset.y(), (float) localOffset.z()};
+        ImGui.dragFloat3("##AnchorPos", anchorPos, 0.01f);
+        AnchorPoint.TEST_POINT.localOffset = new Vector3f(anchorPos[0], anchorPos[1], anchorPos[2]);
+        renderModelParts();
+        ImGui.end();
+    }
+
+    private void renderModelParts(){
+        if(ImGui.beginCombo("##ModelParts", currentlySelectedEntityModelPartName)){
+            ImGui.pushItemWidth(-1);
+            if(currentlySelectedEntityModelParts != null){
+                currentlySelectedEntityModelParts.forEach(modelPart -> {
+                    boolean isSelected = currentlySelectedEntityModelPartName.equals(modelPart);
+                    if(ImGui.selectable(modelPart, isSelected)){
+                        currentlySelectedEntityModelPartName = modelPart;
+                        currentlySelectedEntityModelPart = modelParts.get(modelPart);
+                    }
+                    if(isSelected){
+                        ImGui.setItemDefaultFocus();
+                    }
+                });
+            }
+            ImGui.popItemWidth();
+            ImGui.endCombo();
+        }
+        if(currentlySelectedEntity instanceof LivingEntity le){
+            ImFloat animationSpeed = new ImFloat(le.animationSpeed);
+            ImGui.sliderScalar("Animation Speed", ImGuiDataType.Float, animationSpeed, -10, 10);
+            le.animationSpeed = animationSpeed.get();
+            ImFloat animationPosition = new ImFloat(le.animationPosition);
+            ImGui.sliderScalar("Animation Position", ImGuiDataType.Float, animationPosition, -10, 10);
+            le.animationPosition = animationPosition.get();
+            Vec3 eWorldPos = AnchorPoint.TEST_POINT.getWorldOffset(currentlySelectedEntity);
+            float[] worldPos = new float[]{(float) eWorldPos.x, (float) eWorldPos.y, (float) eWorldPos.z};
+            ImGui.dragFloat3("AnchorWorldPos", worldPos, 0.01f);
+            Vec3 actualWorldPos = currentlySelectedEntity.position();
+            float[] actualWorldPosArr = new float[]{(float) actualWorldPos.x, (float) actualWorldPos.y, (float) actualWorldPos.z};
+            ImGui.dragFloat3("ActualWorldPos", actualWorldPosArr, 0.01f);
+        }
     }
 
     private void renderEmitterSettings() {
@@ -126,6 +181,9 @@ public class ImGuiEditorOverlay {
         ImBoolean localGizmos = new ImBoolean(this.localGizmos);
         ImGui.checkbox("Local Gizmos", localGizmos);
         this.localGizmos = localGizmos.get();
+        ImBoolean renderGizmos = new ImBoolean(this.renderGizmos);
+        ImGui.checkbox("Render Gizmos", renderGizmos);
+        this.renderGizmos = renderGizmos.get();
     }
 
     private void renderEmitterDropdown() {
@@ -203,12 +261,17 @@ public class ImGuiEditorOverlay {
     private void renderRenderSettings() {
         if (!Objects.equals(currentlySelectedEmitter, "None") && currentlySelectedEmitterInstance != null) {
             ImGui.begin("Particle Render Settings");
+            EmissionParticleSettings settings = currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionParticleSettings();
+            float[] scale = new float[]{settings.getBaseParticleSize()};
+            ImGui.dragFloat("Scale", scale, 0.001f);
+            settings.setParticleSize(scale[0]);
             QuasarParticleData data = currentlySelectedEmitterInstance.getParticleData();
             currentlySelectedEmitterInstance.getParticleData().getRenderModules().forEach(Module::renderImGuiSettings);
             ImGui.end();
         }
     }
-
+    boolean setEntityPos = false;
+    boolean setAnchorPos = false;
     private void renderEmitterSimulationSettings() {
         // TODO: XYZ, "Simulate" button
         if (!Objects.equals(currentlySelectedEmitter, "None")) {
@@ -216,11 +279,11 @@ public class ImGuiEditorOverlay {
             ImDouble y = new ImDouble(position.y);
             ImDouble z = new ImDouble(position.z);
             ImGui.begin("Emitter Simulation Settings");
-            if(ImGui.beginCombo("##Shape", currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getShape().name())){
-                for (int i = 0; i < EmissionShape.values().length; i++) {
-                    boolean isSelected = currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getShape().equals(EmissionShape.values()[i]);
-                    if (ImGui.selectable(EmissionShape.values()[i].name(), isSelected)) {
-                        currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().setShape(EmissionShape.values()[i]);
+            if(ImGui.beginCombo("##Shape", EmissionShapeSettings.SHAPES.inverse().get(currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getShape()))){
+                for (int i = 0; i < EmissionShapeSettings.SHAPES.size(); i++) {
+                    boolean isSelected = currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getShape().equals(EmissionShapeSettings.SHAPES.values().toArray()[i]);
+                    if (ImGui.selectable((String) EmissionShapeSettings.SHAPES.keySet().toArray()[i], isSelected)) {
+                        currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().setShape((AbstractEmitterShape) EmissionShapeSettings.SHAPES.values().toArray()[i]);
                     }
                     if (isSelected) {
                         ImGui.setItemDefaultFocus();
@@ -235,7 +298,9 @@ public class ImGuiEditorOverlay {
             ImGui.text("Position:");
             float[] pos = new float[]{(float) position.x, (float) position.y, (float) position.z};
             ImGui.dragFloat3("##Position", pos);
-            position = new Vec3(pos[0], pos[1], pos[2]);
+            if(!setAnchorPos && !setEntityPos){
+                position = new Vec3(pos[0], pos[1], pos[2]);
+            }
             ImGui.text("Rotation:");
             float[] rot = new float[]{(float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().x(), (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().y(), (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().z()};
             ImGui.dragFloat3("##Rotation", rot);
@@ -244,6 +309,20 @@ public class ImGuiEditorOverlay {
                 HitResult ray = Minecraft.getInstance().hitResult;
                 if (ray != null) {
                     position = ray.getLocation();
+                }
+            }
+            if(currentlySelectedEntity != null){
+                ImBoolean setEntityPos = new ImBoolean(this.setEntityPos);
+                ImGui.checkbox("Set pos from entity", setEntityPos);
+                this.setEntityPos = setEntityPos.get();
+                if(this.setEntityPos){
+                    position = currentlySelectedEntity.position();
+                }
+                ImBoolean setAnchorPos = new ImBoolean(this.setAnchorPos);
+                ImGui.checkbox("Set pos from anchor", setAnchorPos);
+                this.setAnchorPos = setAnchorPos.get();
+                if(this.setAnchorPos){
+                    position = AnchorPoint.TEST_POINT.getWorldOffset(currentlySelectedEntity);
                 }
             }
             if (currentlySelectedEmitterInstance != null) {

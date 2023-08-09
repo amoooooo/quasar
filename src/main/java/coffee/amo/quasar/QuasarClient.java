@@ -8,6 +8,7 @@ import coffee.amo.quasar.editor.ImGuiEditorScreen;
 import coffee.amo.quasar.editor.ImGuiGizmos;
 import coffee.amo.quasar.emitters.ParticleEmitterJsonListener;
 import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
+import coffee.amo.quasar.emitters.anchors.AnchorPoint;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsJsonListener;
 import coffee.amo.quasar.emitters.modules.emitter.settings.ParticleSettingsJsonListener;
 import coffee.amo.quasar.emitters.modules.emitter.settings.ShapeSettingsJsonListener;
@@ -18,6 +19,7 @@ import coffee.amo.quasar.registry.AllParticleTypes;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import io.netty.channel.nio.AbstractNioChannel;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -26,10 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -112,7 +111,12 @@ public class QuasarClient {
         }
 
         if (event.phase == TickEvent.Phase.END) {
-            editorScreen.renderEditor();
+            if(Minecraft.getInstance().screen instanceof ImGuiEditorScreen){
+                editorScreen.renderEditor();
+            }
+            if(editorScreen.currentlySelectedEntity != null){
+                AnchorPoint.TEST_POINT.updatePosition(editorScreen.currentlySelectedEntity);
+            }
             if (editorScreen.currentlySelectedEmitterInstance != null) {
                 if (currentlySelectedGizmo != null) {
                     Vec3 emitterPos = editorScreen.currentlySelectedEmitterInstance.getEmitterModule().getPosition();
@@ -143,6 +147,18 @@ public class QuasarClient {
     public static void onKeyInput(InputEvent.Key event) {
         if (EDITOR_KEY.consumeClick()) {
             Minecraft.getInstance().setScreen(new ImGuiEditorScreen());
+            HitResult result = Minecraft.getInstance().hitResult;
+            if(result instanceof EntityHitResult ehr){
+                EntityType<?> type = ehr.getEntity().getType();
+                Entity e = type.create(Minecraft.getInstance().level);
+                editorScreen.currentlySelectedEntity = ehr.getEntity();
+                editorScreen.modelParts = null;
+                editorScreen.currentlySelectedEntityModelParts = null;
+                editorScreen.currentlySelectedEntityModelPartName = null;
+                editorScreen.root = null;
+            } else {
+                editorScreen.currentlySelectedEntity = null;
+            }
         }
     }
 

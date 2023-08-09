@@ -1,9 +1,6 @@
 package coffee.amo.quasar.client.particle;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
@@ -316,11 +313,11 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
 
     public QuasarParticleData instance() {
         QuasarParticleData data = new QuasarParticleData(particleSettings, shouldCollide, faceVelocity, velocityStretchFactor);
-        data.initModules = initModules.stream().map(InitModule::copy).collect(Collectors.toList());
+        data.initModules = initModules.stream().map(InitModule::copy).filter(Objects::nonNull).collect(Collectors.toList());
         data.updateModules = updateModules;
         data.renderModules = renderModules;
         data.collisionModules = collisionModules;
-        data.forces = forces.stream().map(AbstractParticleForce::copy).map(s -> (AbstractParticleForce) s).collect(Collectors.toList());
+        data.forces = forces.stream().map(AbstractParticleForce::copy).filter(Objects::nonNull).map(s -> (AbstractParticleForce) s).collect(Collectors.toList());
         data.registryId = registryId;
         data.spriteData = spriteData;
         data.renderStyle = renderStyle;

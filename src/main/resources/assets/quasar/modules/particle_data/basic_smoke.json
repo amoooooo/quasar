@@ -8,10 +8,10 @@
     ],
     "update_modules": [],
     "collision_modules": [
+        "quasar:collision/die_on_collide"
     ],
     "forces": [
         "quasar:force/vector_field/test_vector_field",
-        "quasar:force/point_force/basic_smoke_point",
         "quasar:force/gravity/test_gravity",
         "quasar:force/drag/test_drag"
     ],

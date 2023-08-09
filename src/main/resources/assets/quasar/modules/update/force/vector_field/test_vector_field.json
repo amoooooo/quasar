@@ -16,7 +16,7 @@
         },
         "strength": 0.25
     },
-    "strength": 0.15,
+    "strength": 0.35,
     "falloff": 1.0,
     "module": "vector_field"
 }

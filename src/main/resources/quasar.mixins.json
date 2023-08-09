@@ -5,11 +5,15 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "quasar.refmap.json",
   "mixins": [
+    "EntityMixin",
     "client.FireworkRocketEntityMixin",
     "client.Matrix4fAccessor"
   ],
   "client": [
     "client.CameraMixin",
+    "client.EntityModelSetMixin",
+    "client.EntityRendererMixin",
+    "client.ModelPartMixin",
     "client.ParticleAccessor",
     "client.ParticleEngineAccessor",
     "client.ParticleMixin"

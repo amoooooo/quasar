@@ -1,19 +1,33 @@
 package coffee.amo.quasar.emitters.modules.emitter.settings;
 
+import coffee.amo.quasar.emitters.modules.emitter.settings.shapes.*;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class EmissionShapeSettings {
+    public static final BiMap<String, AbstractEmitterShape> SHAPES = HashBiMap.create(Map.of(
+            "point", new Point(),
+            "hemisphere", new Hemisphere(),
+            "cylinder", new Cylinder(),
+            "sphere", new Sphere(),
+            "cube", new Cube(),
+            "torus", new Torus(),
+            "disc", new Disc(),
+            "plane", new Plane()
+    ));
     public static final Codec<EmissionShapeSettings> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
                 Codec.STRING.fieldOf("shape").xmap(
-                        EmissionShape::valueOf,
-                        Enum::name).forGetter(EmissionShapeSettings::getShape),
+                        s -> SHAPES.getOrDefault(s.toLowerCase(), new Point()),
+                       s -> SHAPES.inverse().get(s)).forGetter(EmissionShapeSettings::getShape),
                 Vec3.CODEC.fieldOf("dimensions").forGetter(EmissionShapeSettings::getDimensions),
                 Vec3.CODEC.fieldOf("rotation").forGetter(EmissionShapeSettings::getRotation),
                 Codec.BOOL.fieldOf("from_surface").forGetter(EmissionShapeSettings::isFromSurface)
@@ -25,8 +39,8 @@ public class EmissionShapeSettings {
     Supplier<Vec3> rotation;
     RandomSource randomSource;
     boolean fromSurface;
-    EmissionShape shape;
-    private EmissionShapeSettings(EmissionShape shape, Vec3 dimensions, Vec3 position, Vec3 rotation, RandomSource randomSource, boolean fromSurface) {
+    AbstractEmitterShape shape;
+    private EmissionShapeSettings(AbstractEmitterShape shape, Vec3 dimensions, Vec3 position, Vec3 rotation, RandomSource randomSource, boolean fromSurface) {
         this.dimensions = () -> dimensions;
         this.position = () -> position;
         this.randomSource = randomSource;
@@ -35,14 +49,14 @@ public class EmissionShapeSettings {
         this.shape = shape;
     }
 
-    private EmissionShapeSettings(EmissionShape shape, Vec3 dimensions, Vec3 rotation, boolean fromSurface) {
+    private EmissionShapeSettings(AbstractEmitterShape shape, Vec3 dimensions, Vec3 rotation, boolean fromSurface) {
         this.dimensions = () -> dimensions;
         this.fromSurface = fromSurface;
         this.rotation = () -> rotation;
         this.shape = shape;
     }
 
-    public EmissionShapeSettings(EmissionShape shape, Supplier<Vec3> dimensions, Supplier<Vec3> position, Supplier<Vec3> rotation, RandomSource randomSource, boolean fromSurface) {
+    public EmissionShapeSettings(AbstractEmitterShape shape, Supplier<Vec3> dimensions, Supplier<Vec3> position, Supplier<Vec3> rotation, RandomSource randomSource, boolean fromSurface) {
         this.dimensions = dimensions;
         this.position = position;
         this.randomSource = randomSource;
@@ -62,9 +76,9 @@ public class EmissionShapeSettings {
     }
 
     public Vec3 getPos(){
-        return shape.getPos(this);
+        return shape.getPoint(this.randomSource, this.dimensions.get(), this.rotation.get(), this.position.get(), this.fromSurface);
     }
-    public EmissionShape getShape(){
+    public AbstractEmitterShape getShape(){
         return shape;
     }
 
@@ -90,7 +104,7 @@ public class EmissionShapeSettings {
         this.position = () -> position;
     }
 
-    public void setShape(EmissionShape shape) {
+    public void setShape(AbstractEmitterShape shape) {
         this.shape = shape;
     }
 
@@ -108,7 +122,7 @@ public class EmissionShapeSettings {
         private Supplier<Vec3> rotation;
         private RandomSource randomSource;
         private boolean fromSurface;
-        private EmissionShape shape;
+        private AbstractEmitterShape shape;
 
         public Builder setDimensions(Supplier<Vec3> dimensions) {
             this.dimensions = dimensions;
@@ -135,7 +149,7 @@ public class EmissionShapeSettings {
             return this;
         }
 
-        public Builder setShape(EmissionShape shape) {
+        public Builder setShape(AbstractEmitterShape shape) {
             this.shape = shape;
             return this;
         }

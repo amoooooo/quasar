@@ -144,6 +144,10 @@ public class EmissionParticleSettings {
         this.initialDirection = () -> scale;
     }
 
+    public void setParticleSize(float scale) {
+        this.baseParticleSize = scale;
+    }
+
     public static class Builder {
         private RandomSource randomSource;
         private float particleSpeed = 0;
