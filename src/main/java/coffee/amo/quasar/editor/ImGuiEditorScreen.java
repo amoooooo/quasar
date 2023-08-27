@@ -110,7 +110,7 @@ public class ImGuiEditorScreen extends Screen {
         super.render(ps, pMouseX, pMouseY, pPartialTick);
     }
 
-    private static Map<String, ModelPart> mapRenderers(Model model) {
+    public static Map<String, ModelPart> mapRenderers(Model model) {
         Map<String, ModelPart> renderers = new HashMap<>();
         Class<?> i = model.getClass();
         while (i != null && i != Object.class) {
@@ -170,7 +170,7 @@ public class ImGuiEditorScreen extends Screen {
         return parts;
     }
 
-    public List<ModelPart> getModelPartTree(String path, ModelPart root) {
+    public static List<ModelPart> getModelPartTree(String path, ModelPart root) {
         List<ModelPart> parts = new ArrayList<>();
         parts.add(root);
         if(root.children.isEmpty()) return parts;

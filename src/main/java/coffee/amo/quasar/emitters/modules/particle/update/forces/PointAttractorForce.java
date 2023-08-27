@@ -1,5 +1,6 @@
 package coffee.amo.quasar.emitters.modules.particle.update.forces;
 
+import coffee.amo.quasar.QuasarClient;
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
@@ -127,6 +128,9 @@ public class PointAttractorForce extends AbstractParticleForce {
             ImGui.sameLine();
             ImGui.dragFloat3("##Position: #" +this.hashCode(), pos);
             this.setPosition(new Vec3(pos[0], pos[1], pos[2]));
+            if(ImGui.button("Set force center to emitter pos")) {
+                this.setPosition(QuasarClient.editorScreen.currentlySelectedEmitterInstance.getEmitterModule().getPosition());
+            }
         }
     }
 

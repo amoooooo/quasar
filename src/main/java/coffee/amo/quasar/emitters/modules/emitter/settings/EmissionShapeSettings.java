@@ -116,6 +116,10 @@ public class EmissionShapeSettings {
         this.rotation = () -> rotation;
     }
 
+    public void setFromSurface(boolean surface) {
+        this.fromSurface = surface;
+    }
+
     public static class Builder {
         private Supplier<Vec3> dimensions;
         private Supplier<Vec3> position;

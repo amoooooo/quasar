@@ -11,6 +11,7 @@ import coffee.amo.quasar.emitters.modules.particle.render.TrailSettings;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModule;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
+import coffee.amo.quasar.fx.Trail;
 import coffee.amo.quasar.util.MathUtil;
 import cofh.core.init.CoreShaders;
 import cofh.core.util.helpers.vfx.Color;
@@ -41,6 +42,7 @@ import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -107,7 +109,6 @@ public class QuasarParticle extends Particle {
     public boolean shouldCollide = false;
     protected boolean emissive = true;
     protected Vec3 previousMotion = Vec3.ZERO;
-    protected Vector4f[] previousPositions = new Vector4f[0];
     protected Vec3 previousPosition = Vec3.ZERO;
     protected Vec3 initialPosition = Vec3.ZERO;
     protected Vec3 position = Vec3.ZERO;
@@ -293,7 +294,6 @@ public class QuasarParticle extends Particle {
 
     @Override
     public void remove() {
-        previousPositions = null;
         super.remove();
     }
 
@@ -340,6 +340,7 @@ public class QuasarParticle extends Particle {
     private float oPitch = 0;
     private float yaw = 0;
     private float oYaw = 0;
+    private List<Trail> trails = new ArrayList<>();
 
     @Override
     public void render(VertexConsumer builder, Camera camera, float partialTicks) {
@@ -372,46 +373,29 @@ public class QuasarParticle extends Particle {
         float lX = (float) (Mth.lerp(partialTicks, this.xo, this.x));
         float lY = (float) (Mth.lerp(partialTicks, this.yo, this.y));
         float lZ = (float) (Mth.lerp(partialTicks, this.zo, this.z));
+        float lerpedYaw = Mth.lerp(partialTicks, oYaw, yaw);
+        float lerpedPitch = Mth.lerp(partialTicks, oPitch, pitch);
+        float lerpedRoll = Mth.lerp(partialTicks, oRoll, roll);
         if (!renderData.getTrails().isEmpty()) {
-            if (previousPositions.length == 0) {
-                previousPositions = new Vector4f[100];
-                for (int i = 0; i < previousPositions.length; i++) {
-                    previousPositions[i] = new Vector4f(lX, lY, lZ, 1.0f);
-                }
-            } else {
-                for (int i = previousPositions.length - 1; i > 0; i--) {
-                    previousPositions[i] = previousPositions[i - 1];
-                }
-                previousPositions[0] = new Vector4f(lX, lY, lZ, 1.0f);
-            }
-            for (int t = 0; t < renderData.getTrails().size(); t++) {
-                TrailSettings trail = renderData.getTrails().get(t);
-                if (trail.getTrailFrequency() == 0) continue;
-                Vector4f[] trimmedPositions = new Vector4f[trail.getTrailLength()];
-                System.arraycopy(previousPositions, 0, trimmedPositions, 0, trail.getTrailLength());
-                Vector4f[] trailPoints = new Vector4f[trimmedPositions.length / trail.getTrailFrequency()];
-                for (int i = 0; i < trailPoints.length; i++) {
-                    trailPoints[i] = trail.getTrailPointModifier().apply(trimmedPositions[i * trail.getTrailFrequency()], i, new Vec3(xd, yd, zd));
-                }
-                QuasarClient.delayedRenders.add(ps -> {
-                    if (previousPositions != null && previousPositions.length > 0) {
-                        Color color = Color.fromFloat(rCol, gCol, bCol, alpha);
-                        if (trail.getTrailColor() != null) {
-                            color = Color.fromRGBA((int) (trail.getTrailColor().x() * 255), (int) (trail.getTrailColor().y() * 255), (int) (trail.getTrailColor().z() * 255), (int) (trail.getTrailColor().w() * 255));
-                        }
-                        VFXHelper.renderStreamLine(
-                                ps,
-                                Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypes.translucent(trail.getTrailTexture())),
-                                emissive ? LightTexture.FULL_BRIGHT : getLightColor(partialTicks),
-                                MathUtil.copyVector4fArray(trailPoints),
-                                color,
-                                (index) -> {
-                                    return trail.getTrailWidthModifier().apply(index, (float) ageMultiplier);
-                                }
-                        );
-                    }
+            if(trails.isEmpty()) {
+                renderData.getTrails().forEach(trail -> {
+                    Trail tr = new Trail(MathUtil.colorFromVec4f(trail.getTrailColor()), (ageScale) -> trail.getTrailWidthModifier().apply(ageScale, (float)ageMultiplier));
+                    tr.setBillboard(trail.getBillboard());
+                    tr.setLength(trail.getTrailLength());
+                    tr.setFrequency(trail.getTrailFrequency());
+                    tr.setTilingMode(trail.getTilingMode());
+                    tr.setTexture(trail.getTrailTexture());
+                    tr.setParentRotation(trail.getParentRotation());
+                    tr.pushRotatedPoint(new Vec3(xo, yo, zo), new Vec3(lerpedYaw, lerpedPitch, lerpedRoll));
+                    trails.add(tr);
                 });
             }
+            trails.forEach(trail -> {
+                trail.pushRotatedPoint(new Vec3(lX, lY, lZ), new Vec3(lerpedYaw, lerpedPitch, lerpedRoll));
+                QuasarClient.delayedRenders.add(ps -> {
+                    trail.render(ps, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypes.translucentNoCull(trail.getTexture())), emissive ? LightTexture.FULL_BRIGHT : getLightColor(partialTicks));
+                });
+            });
         }
         float lerpedX = (float) (Mth.lerp(partialTicks, this.xo, this.x) - projectedView.x());
         float lerpedY = (float) (Mth.lerp(partialTicks, this.yo, this.y) - projectedView.y());

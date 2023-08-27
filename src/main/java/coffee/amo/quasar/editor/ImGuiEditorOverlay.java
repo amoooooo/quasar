@@ -291,6 +291,12 @@ public class ImGuiEditorOverlay {
                 }
                 ImGui.endCombo();
             }
+            ImBoolean faceVelocity = new ImBoolean(currentlySelectedEmitterInstance.getParticleData().getFaceVelocity());
+            ImGui.checkbox("Face Velocity", faceVelocity);
+            currentlySelectedEmitterInstance.getParticleData().setFaceVelocity(faceVelocity.get());
+            ImBoolean fromEdge = new ImBoolean(currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().isFromSurface());
+            ImGui.checkbox("From Edge", fromEdge);
+            currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().setFromSurface(fromEdge.get());
             ImGui.text("Dimensions:");
             float[] dimensions = new float[]{(float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().x, (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().y, (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().z};
             ImGui.dragFloat3("##Dimensions", dimensions);

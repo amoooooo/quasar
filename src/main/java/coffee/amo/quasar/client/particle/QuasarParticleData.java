@@ -324,4 +324,8 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
         data.renderType = renderType;
         return data;
     }
+
+    public void setFaceVelocity(boolean face) {
+        this.faceVelocity = face;
+    }
 }

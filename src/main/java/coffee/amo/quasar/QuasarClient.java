@@ -15,19 +15,24 @@ import coffee.amo.quasar.emitters.modules.emitter.settings.ShapeSettingsJsonList
 import coffee.amo.quasar.emitters.modules.particle.init.InitModuleJsonListener;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleJsonListener;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleJsonListener;
+import coffee.amo.quasar.fx.Trail;
 import coffee.amo.quasar.registry.AllParticleTypes;
+import coffee.amo.quasar.registry.AllSpecialTextures;
+import coffee.amo.quasar.util.ModelPartExtension;
+import cofh.core.util.helpers.vfx.RenderTypes;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
-import io.netty.channel.nio.AbstractNioChannel;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -41,6 +46,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(modid = Quasar.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
@@ -54,6 +60,9 @@ public class QuasarClient {
     public static Gizmo zGizmo = new Gizmo(AABB.ofSize(Vec3.ZERO, 0, 0, 0), 0, 0, 1, 1, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO);
     public static double mouseX = 0;
     public static double mouseY = 0;
+    public static Vec3[] previousPositions = new Vec3[0];
+    public static Trail test = new Trail(0xFFFFFFFF, (ageScale) -> ageScale);
+    public static AnchorPoint LOCAL_PLAYER_ANCHOR = new AnchorPoint(new ResourceLocation("quasar", "local_player_anchor"));
 
     @SubscribeEvent
     public static void renderTranslucent(RenderLevelStageEvent event) {
@@ -63,6 +72,7 @@ public class QuasarClient {
             Vec3 pos = event.getCamera().getPosition();
             stack.translate(-pos.x, -pos.y, -pos.z);
             delayedRenders.forEach(consumer -> consumer.accept(stack));
+            test.render(stack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypes.translucentNoCull(new ResourceLocation("quasar:textures/special/flamestexture.png"))), LightTexture.FULL_BRIGHT);
             stack.popPose();
         }
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
@@ -105,7 +115,26 @@ public class QuasarClient {
     private static Vec3 gizmoGrabOffset = Vec3.ZERO;
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.RenderTickEvent event) {
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+
+    }
+    @SubscribeEvent
+    public static void onRenderTick(TickEvent.RenderTickEvent event) {
+        if(Minecraft.getInstance().player != null){
+            Player player = Minecraft.getInstance().player;
+            test.setLength(20);
+            test.setBillboard(true);
+            test.setTexture(new ResourceLocation("quasar:textures/special/blank.png"));
+            test.setTilingMode(Trail.TilingMode.STRETCH);
+            test.setFrequency(1);
+            test.setParentRotation(false);
+            LivingEntityRenderer<?, ?> renderer = (LivingEntityRenderer<?, ?>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
+            Class<LivingEntityRenderer<?, ?>> clazz = (Class<LivingEntityRenderer<?, ?>>) renderer.getClass();
+            EntityModel<LivingEntity> model = (EntityModel<LivingEntity>) clazz.cast(renderer).getModel();
+            Map<String, ModelPart> parts = ImGuiEditorScreen.mapRenderers(model);
+            LOCAL_PLAYER_ANCHOR.modelParts = ImGuiEditorScreen.getModelPartTree("right_arm", parts.containsKey("root") ? parts.get("root") : parts.values().stream().filter(s -> ((ModelPartExtension)(Object)s).getName() == "right_arm").findFirst().get());
+            LOCAL_PLAYER_ANCHOR.updatePosition(player);
+        }
         if (editorScreen == null) {
             editorScreen = new ImGuiEditorOverlay();
         }
@@ -116,6 +145,7 @@ public class QuasarClient {
             }
             if(editorScreen.currentlySelectedEntity != null){
                 AnchorPoint.TEST_POINT.updatePosition(editorScreen.currentlySelectedEntity);
+                test.pushPoint(AnchorPoint.TEST_POINT.getWorldOffset(editorScreen.currentlySelectedEntity));
             }
             if (editorScreen.currentlySelectedEmitterInstance != null) {
                 if (currentlySelectedGizmo != null) {
@@ -149,8 +179,6 @@ public class QuasarClient {
             Minecraft.getInstance().setScreen(new ImGuiEditorScreen());
             HitResult result = Minecraft.getInstance().hitResult;
             if(result instanceof EntityHitResult ehr){
-                EntityType<?> type = ehr.getEntity().getType();
-                Entity e = type.create(Minecraft.getInstance().level);
                 editorScreen.currentlySelectedEntity = ehr.getEntity();
                 editorScreen.modelParts = null;
                 editorScreen.currentlySelectedEntityModelParts = null;

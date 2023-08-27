@@ -1,5 +1,6 @@
 package coffee.amo.quasar.emitters.modules.particle.update.forces;
 
+import coffee.amo.quasar.QuasarClient;
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import com.mojang.serialization.Codec;
@@ -119,6 +120,9 @@ public class VortexForce extends AbstractParticleForce {
             ImGui.text("Vortex Axis:");
             ImGui.dragFloat3("##Axis: #" + this.hashCode(), axis, 0.01f);
             this.setVortexAxis(new Vec3(axis[0], axis[1], axis[2]));
+            if(ImGui.button("Set force center to emitter pos")) {
+                this.setVortexCenter(QuasarClient.editorScreen.currentlySelectedEmitterInstance.getEmitterModule().getPosition());
+            }
         }
     }
 
