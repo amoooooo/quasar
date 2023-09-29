@@ -128,6 +128,14 @@ public class EmissionParticleSettings {
         return baseParticleSize;
     }
 
+    public int getBaseParticleLifetime() {
+        return particleLifetime;
+    }
+
+    public void setBaseParticleLifetime(int particleLifetime) {
+        this.particleLifetime = particleLifetime;
+    }
+
     public RandomSource getRandomSource() {
         return randomSource;
     }

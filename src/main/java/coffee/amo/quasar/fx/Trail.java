@@ -5,14 +5,11 @@ import coffee.amo.quasar.util.MathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.util.function.Function;
 
@@ -33,6 +30,7 @@ public class Trail {
     private float minDistance = 0f;
     private ResourceLocation texture = null;
     private boolean parentRotation = false;
+    private int timeout = 0;
 
     public Trail(Vec3[] points, int color, Function<Float, Float> widthFunction) {
         this.points = points;
@@ -98,15 +96,24 @@ public class Trail {
     }
 
     public void pushPoint(Vec3 point) {
+        if(timeout > Minecraft.getInstance().getWindow().getRefreshRate() * 5 && timeout % 3 == 0) {
+            //remove the last point in the array
+            Vec3[] newPoints = new Vec3[points.length - 1];
+            System.arraycopy(points, 1, newPoints, 0, points.length - 1);
+            points = newPoints;
+            return;
+        }
         if(points.length == 0) {
             points = new Vec3[]{point};
             return;
         }
         if (points[points.length - 1].distanceTo(point) < minDistance) {
+            timeout++;
             return;
         }
         // test if point is same as last point
         if (points[points.length - 1].equals(point)) {
+            timeout++;
             return;
         }
         // add point to end of array and remove first point if array is longer than length
@@ -114,6 +121,7 @@ public class Trail {
             points[0] = point;
             return;
         }
+        timeout = 0;
         Vec3[] newPoints = new Vec3[points.length + 1];
         System.arraycopy(points, 0, newPoints, 0, points.length);
         newPoints[points.length] = point;
@@ -126,6 +134,16 @@ public class Trail {
     }
 
     public void pushRotatedPoint(Vec3 point, Vec3 rotation) {
+        if(timeout > Minecraft.getInstance().getWindow().getRefreshRate() * 5 && timeout % 5 == 0 && points.length > 0) {
+            //remove the last point in the array
+            Vec3[] newPoints = new Vec3[points.length - 1];
+            System.arraycopy(points, 1, newPoints, 0, points.length - 1);
+            points = newPoints;
+            Vec3[] newRotations = new Vec3[rotations.length - 1];
+            System.arraycopy(rotations, 1, newRotations, 0, rotations.length - 1);
+            rotations = newRotations;
+            return;
+        }
         if(points.length == 0) {
             points = new Vec3[]{point};
             rotations = new Vec3[]{rotation};
@@ -137,10 +155,12 @@ public class Trail {
             return;
         }
         if (points[points.length - 1].distanceTo(point) < minDistance) {
+            timeout++;
             return;
         }
         // test if point is same as last point
         if (points.length > 0 && points[points.length - 1].equals(point)) {
+            timeout++;
             return;
         }
         if(rotations == null) {
@@ -175,26 +195,30 @@ public class Trail {
             Vector3f topOffset = new Vector3f(0, (width / 2f),0);
             Vector3f bottomOffset = new Vector3f(0, -(width / 2f), 0);
             if (billboard) {
-                Vector3f cameraDirection = new Vector3f(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().subtract(points[i]).normalize());
-                Vector3f dirToNextPoint = new Vector3f(points[Math.min(i + frequency, points.length - 1)].subtract(points[i]).normalize());
-                Vector3f axis = cameraDirection.copy();
+                Vec3 a = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().subtract(points[i]).normalize();
+                Vector3f cameraDirection = new Vector3f((float) a.x, (float) a.y, (float) a.z);
+                Vec3 b = points[Math.min(i + frequency, points.length - 1)].subtract(points[i]).normalize();
+                Vector3f dirToNextPoint = new Vector3f((float) b.x(), (float) b.y(), (float) b.z());
+                Vector3f axis = new Vector3f(cameraDirection);
                 // invert the axis
                 axis.mul(-1);
                 axis.cross(dirToNextPoint);
-                topOffset = axis.copy();
+                topOffset = new Vector3f(axis);
                 topOffset.mul(width/2f);
-                bottomOffset = axis.copy();
+                bottomOffset = new Vector3f(axis);
                 bottomOffset.mul(-width/2f);
             } else if(rotations[i] != null && parentRotation) {
-                Vector3f cameraDirection = new Vector3f(rotations[Math.min(i + frequency, rotations.length - 1)]);
-                Vector3f dirToNextPoint = new Vector3f(points[Math.min(i + frequency, points.length - 1)].subtract(points[i]).normalize());
-                Vector3f axis = cameraDirection.copy();
+                Vec3 a = rotations[Math.min(i + frequency, rotations.length - 1)];
+                Vector3f cameraDirection = new Vector3f((float) a.x, (float) a.y, (float) a.z);
+                Vec3 b = points[Math.min(i + frequency, points.length - 1)].subtract(points[i]).normalize();
+                Vector3f dirToNextPoint = new Vector3f((float) b.x(), (float) b.y(), (float) b.z());
+                Vector3f axis = new Vector3f(cameraDirection);
                 // invert the axis
                 axis.mul(-1);
                 axis.cross(dirToNextPoint);
-                topOffset = axis.copy();
+                topOffset = new Vector3f(axis);
                 topOffset.mul(width/2f);
-                bottomOffset = axis.copy();
+                bottomOffset = new Vector3f(axis);
                 bottomOffset.mul(-width/2f);
             }
             topOffset.add((float) points[i].x, (float) points[i].y, (float) points[i].z);

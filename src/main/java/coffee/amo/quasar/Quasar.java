@@ -5,8 +5,6 @@ import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleRegistry;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.PointAttractorForce;
-import coffee.amo.quasar.entity.BlackHoleEntity;
-import coffee.amo.quasar.entity.SlashEntity;
 import coffee.amo.quasar.event.EmitterInstantiationEvent;
 import coffee.amo.quasar.event.QuasarParticleTickEvent;
 import coffee.amo.quasar.net.DNDNetworking;
@@ -111,41 +109,24 @@ public class Quasar {
 
     @SubscribeEvent
     public void itemUse(LivingEntityUseItemEvent.Start event) {
-        if (event.getItem().getItem() == Items.GLOW_INK_SAC && !event.getEntity().level.isClientSide) {
+        if (event.getItem().getItem() == Items.GLOW_INK_SAC && !event.getEntity().level().isClientSide) {
             ParticleSystemManager.getInstance().clear();
         }
-        if (event.getItem().getItem() == Items.GOLDEN_APPLE && event.getEntity().level.isClientSide) {
+        if (event.getItem().getItem() == Items.GOLDEN_APPLE && event.getEntity().level().isClientSide) {
             ParticleSystemManager.getInstance().clear();
-        }
-        if(event.getItem().getItem() == Items.SPYGLASS){
-            SlashEntity slash = new SlashEntity(event.getEntity().level);
-            slash.setPos(0, -60, 0);
-            // y rot should only be straight flat
-            slash.setYRot(event.getEntity().getYRot());
-            Vec3 look = event.getEntity().getLookAngle().scale(1.0f);
-            slash.setDeltaMovement(5.0, 0, 0);
-            event.getEntity().level.addFreshEntity(slash);
-            event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onBlockPlace(BlockEvent.EntityPlaceEvent event){
         if(!event.getLevel().isClientSide()) {
-            if(event.getPlacedBlock().is(Blocks.HOPPER)){
-                ServerLevel level = (ServerLevel) event.getLevel();
-                BlackHoleEntity blackHole = new BlackHoleEntity(level);
-                blackHole.setPos(event.getPos().getX() + 0.5, event.getPos().getY() + 1, event.getPos().getZ() + 0.5);
-                blackHole.setNoGravity(true);
-                level.addFreshEntity(blackHole);
-            }
         }
     }
     @SubscribeEvent
     public void onSnowballBreak(ProjectileImpactEvent event) {
         if (event.getProjectile() instanceof ThrowableItemProjectile thrown) {
             if(thrown.getItem().getItem() == Items.SNOWBALL){
-                Level level = event.getProjectile().level;
+                Level level = event.getProjectile().level();
 //                BlackHoleEntity blackHole = new BlackHoleEntity(level);
 //                blackHole.setPos(event.getProjectile().getX(), event.getProjectile().getY(), event.getProjectile().getZ());
 //                blackHole.setNoGravity(true);
@@ -155,7 +136,7 @@ public class Quasar {
                 }
             }
             if(thrown.getItem().getItem() == Items.EGG) {
-                if(!event.getProjectile().level.isClientSide){
+                if(!event.getProjectile().level().isClientSide){
                     DNDNetworking.sendToAll(new CubeParticlePacket("vortex", event.getProjectile().getId()));
                 }
 //                event.getEntity().discard();
@@ -167,7 +148,7 @@ public class Quasar {
 
     @SubscribeEvent
     public void entityAttackEvent(LivingHurtEvent event){
-        if(!event.getEntity().level.isClientSide) return;
+        if(!event.getEntity().level().isClientSide) return;
         // check if the target is blocking and if the attacker has a sword in their hand
         if(event.getEntity().isBlocking()){
             if(event.getSource().getDirectEntity() != null){
@@ -184,7 +165,7 @@ public class Quasar {
     @SubscribeEvent
     public void entityJoinLevelEvent(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof FireworkRocketEntity) {
-            Level level = event.getEntity().level;
+            Level level = event.getEntity().level();
         }
         if(event.getEntity() instanceof Fireball) {
             if(event.getLevel().isClientSide()) {

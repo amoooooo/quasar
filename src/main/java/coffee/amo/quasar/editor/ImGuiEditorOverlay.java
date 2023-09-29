@@ -12,7 +12,6 @@ import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionShapeSettings
 import coffee.amo.quasar.emitters.modules.emitter.settings.shapes.AbstractEmitterShape;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.*;
 import com.google.gson.JsonElement;
-import com.mojang.math.Vector3f;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import imgui.ImGui;
@@ -29,6 +28,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
+import org.joml.Vector3f;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -148,12 +148,9 @@ public class ImGuiEditorOverlay {
             ImGui.endCombo();
         }
         if(currentlySelectedEntity instanceof LivingEntity le){
-            ImFloat animationSpeed = new ImFloat(le.animationSpeed);
+            ImFloat animationSpeed = new ImFloat(le.walkAnimation.speed());
             ImGui.sliderScalar("Animation Speed", ImGuiDataType.Float, animationSpeed, -10, 10);
-            le.animationSpeed = animationSpeed.get();
-            ImFloat animationPosition = new ImFloat(le.animationPosition);
-            ImGui.sliderScalar("Animation Position", ImGuiDataType.Float, animationPosition, -10, 10);
-            le.animationPosition = animationPosition.get();
+            le.walkAnimation.setSpeed(animationSpeed.get());
             Vec3 eWorldPos = AnchorPoint.TEST_POINT.getWorldOffset(currentlySelectedEntity);
             float[] worldPos = new float[]{(float) eWorldPos.x, (float) eWorldPos.y, (float) eWorldPos.z};
             ImGui.dragFloat3("AnchorWorldPos", worldPos, 0.01f);
@@ -297,6 +294,9 @@ public class ImGuiEditorOverlay {
             ImBoolean fromEdge = new ImBoolean(currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().isFromSurface());
             ImGui.checkbox("From Edge", fromEdge);
             currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().setFromSurface(fromEdge.get());
+            ImInt particleLifetime = new ImInt(currentlySelectedEmitterInstance.getParticleData().getParticleSettings().getBaseParticleLifetime());
+            ImGui.inputInt("Particle Lifetime", particleLifetime);
+            currentlySelectedEmitterInstance.getParticleData().getParticleSettings().setBaseParticleLifetime(particleLifetime.get());
             ImGui.text("Dimensions:");
             float[] dimensions = new float[]{(float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().x, (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().y, (float) currentlySelectedEmitterInstance.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().z};
             ImGui.dragFloat3("##Dimensions", dimensions);

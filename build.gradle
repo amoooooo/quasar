@@ -188,6 +188,16 @@ repositories {
     maven {
         url "https://repo.spongepowered.org/repository/maven-public/"
     }
+    maven {
+        name = 'BlameJared Maven (CrT / Bookshelf)'
+        url = 'https://maven.blamejared.com'
+    }
+    maven {
+        url "https://jitpack.io"
+        content {
+            includeGroupByRegex "com\\.github.*"
+        }
+    }
 }
 
 minecraft.runs.configureEach {
@@ -213,8 +223,8 @@ dependencies {
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
-     implementation fg.deobf("blank:cofh_core:1.19.2-10.2.2.0")
-     implementation fg.deobf("blank:lodestone:1.19.2-1.4.2")
+     implementation fg.deobf("foundry.veil:Veil-forge-1.20.1:1.0.0.+")
+//    implementation(fg.deobf("gg.moonflower:molang-compiler:${molang_compiler_version}"))
      minecraftLibrary("org.spongepowered:noise:2.0.0-SNAPSHOT")
 //    implementation fg.deobf("curse.maven:cofh-core-69162:4385216")
 

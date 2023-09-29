@@ -2,7 +2,6 @@ package coffee.amo.quasar;
 
 import coffee.amo.quasar.emitters.*;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.*;
-import cofh.core.client.particle.types.ColorParticleType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -20,14 +19,6 @@ public class ParticleRegistry {
 
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, "quasar");
 
-    public static final RegistryObject<ColorParticleType> FOG = PARTICLES.register("fog", () -> {
-        return new ColorParticleType(true);
-    });
-
-    public static final RegistryObject<SimpleParticleType> CRACK = PARTICLES.register("crack", () -> {
-        return new SimpleParticleType(true);
-    });
-
     public static Map<String, Consumer<ParticleContext>> PARTICLE_SYSTEMS = Map.of(
             "vortex", ParticleRegistry::runVortexParticles
     );
@@ -35,7 +26,7 @@ public class ParticleRegistry {
     public static void runVortexParticles(ParticleContext context) {
         try {
             ParticleEmitter emitter = ParticleEmitterRegistry.getEmitter(ResourceLocation.tryParse("quasar:vortex")).instance();
-            emitter.setLevel(context.entity.level);
+            emitter.setLevel(context.entity.level());
             emitter.setPosition(context.position);
             emitter.getParticleData().getForces().forEach( force -> {
                 if(force instanceof VortexForce vf) {

@@ -35,7 +35,7 @@ public abstract class EntityMixin implements EntityExtension {
 
     @Inject(method = "remove", at = @At("TAIL"))
     public void remove(CallbackInfo ci) {
-        if(!((Entity) (Object) this).level.isClientSide) return;
+        if(!((Entity) (Object) this).level().isClientSide) return;
         emitters.forEach(ParticleSystemManager.getInstance()::removeDelayedParticleSystem);
         emitters.clear();
     }

@@ -2,7 +2,7 @@ package coffee.amo.quasar.emitters.modules.particle.render;
 
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
-import com.mojang.math.Vector4f;
+import org.joml.Vector4f;
 import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
 

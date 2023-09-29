@@ -3,10 +3,10 @@ package coffee.amo.quasar.emitters.modules.particle.init;
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.util.CodecUtil;
-import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector4f;
 
 import java.util.Arrays;
 import java.util.List;

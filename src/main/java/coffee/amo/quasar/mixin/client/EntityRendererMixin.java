@@ -8,6 +8,7 @@ import coffee.amo.quasar.util.EntityExtension;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -25,7 +26,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
             if(((EntityExtension)pEntity).getEmitters().isEmpty()){
                 ParticleEmitter emitter = ParticleEmitterRegistry.getEmitter(new ResourceLocation("quasar:basic_smoke")).instance();
                 emitter.setPosition(pEntity.position());
-                emitter.setLevel(pEntity.level);
+                emitter.setLevel(pEntity.level());
                 emitter.getEmitterSettingsModule().getEmissionShapeSettings().setPosition(pEntity::position);
                 emitter.getEmitterSettingsModule().getEmissionShapeSettings().setDimensions(
                         new Vec3(
@@ -54,7 +55,12 @@ public abstract class EntityRendererMixin<T extends Entity> {
                 }
             });
             ((EntityExtension)pEntity).getEmitters().removeIf(emitter -> emitter.registryName.toString().equals("quasar:basic_smoke"));
-
+        }
+        if(!((EntityExtension)pEntity).getEmitters().isEmpty()){
+            ParticleEmitter emitter = ((EntityExtension)pEntity).getEmitters().get(0);
+            if(emitter.registryName.toString().equals("quasar:basic_smoke")){
+                pEntity.setCustomName(Component.literal("Particles: " + emitter.particleCount));
+            }
         }
     }
 }

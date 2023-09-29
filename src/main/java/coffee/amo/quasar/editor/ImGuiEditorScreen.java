@@ -6,11 +6,12 @@ import coffee.amo.quasar.util.ModelPartExtension;
 import coffee.amo.quasar.util.ModelSetAccessor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.math.Axis;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
@@ -25,6 +26,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.Field;
@@ -49,7 +52,8 @@ public class ImGuiEditorScreen extends Screen {
     private float dragPanY = 0f;
 
     @Override
-    public void render(PoseStack ps, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        PoseStack ps = guiGraphics.pose();
         if (QuasarClient.editorScreen.currentlySelectedEntity != null) {
             Entity entity = QuasarClient.editorScreen.currentlySelectedEntity;
             float entityBBSize = (float) entity.getBoundingBox().getSize();
@@ -61,12 +65,12 @@ public class ImGuiEditorScreen extends Screen {
             ps.scale(1 + zoomScaled, 1 + zoomScaled, 1 + zoomScaled);
             ps.translate(-dragPanX, dragPanY, 0);
             ps.translate(0, -scaleTranslation, 0);
-            ps.mulPose(Vector3f.XP.rotationDegrees((float) Math.toDegrees(dragRotationY)));
-            ps.mulPose(Vector3f.YP.rotationDegrees((float) Math.toDegrees(dragRotationX)));
+            ps.mulPose(Axis.XP.rotationDegrees((float) Math.toDegrees(dragRotationY)));
+            ps.mulPose(Axis.YP.rotationDegrees((float) Math.toDegrees(dragRotationX)));
             ps.translate(0, scaleTranslation, 0);
 
             RenderSystem.backupProjectionMatrix();
-            RenderSystem.setProjectionMatrix(Matrix4f.perspective(90.0, (float) this.width / this.height, 0.3f, 3000.0f));
+            RenderSystem.setProjectionMatrix(new Matrix4f().setPerspective(90.0f, (float) this.width / this.height, 0.3f, 3000.0f), RenderSystem.getVertexSorting());
             MultiBufferSource.BufferSource boxSource = Minecraft.getInstance().renderBuffers().bufferSource();
             ps.pushPose();
             ps.scale(5000f, 5000f, 5000f);
@@ -88,7 +92,7 @@ public class ImGuiEditorScreen extends Screen {
                 if (QuasarClient.editorScreen.modelParts == null)
                     QuasarClient.editorScreen.modelParts = parts;
                 QuasarClient.editorScreen.root = parts.containsKey("root") ? parts.get("root") : parts.values().stream().findFirst().get();
-                Vector3f v = Vector3f.ZERO.copy();
+                Vector3f v =new Vector3f(0,0,0);
                 v.add(0.0f, entity.getBbHeight() / 2f, 0f);
                 AnchorPoint.TEST_POINT.origin = v;// its unused
                 AnchorPoint.TEST_POINT.modelParts = getModelPartTree(QuasarClient.editorScreen.currentlySelectedEntityModelPartName, QuasarClient.editorScreen.root);
@@ -99,7 +103,7 @@ public class ImGuiEditorScreen extends Screen {
             ps.pushPose();
             ps.scale(5000f, 5000f, 5000f);
             ps.translate(0, -1, 0);
-            ps.mulPose(Vector3f.YP.rotationDegrees(entity.getYRot()));
+            ps.mulPose(Axis.YP.rotationDegrees(entity.getYRot()));
             AnchorPoint.TEST_POINT.render(ps, boxSource, 1 + zoomScaled);
             boxSource.endBatch();
             ps.popPose();
@@ -107,7 +111,7 @@ public class ImGuiEditorScreen extends Screen {
 
             ps.popPose();
         }
-        super.render(ps, pMouseX, pMouseY, pPartialTick);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
     }
 
     public static Map<String, ModelPart> mapRenderers(Model model) {

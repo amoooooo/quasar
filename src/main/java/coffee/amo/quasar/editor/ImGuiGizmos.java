@@ -5,13 +5,13 @@ import coffee.amo.quasar.emitters.ParticleEmitter;
 import coffee.amo.quasar.emitters.modules.emitter.settings.shapes.AbstractEmitterShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 
 public class ImGuiGizmos {
     public static void renderGizmos(PoseStack stack, Camera camera, ImGuiEditorOverlay editorScreen, float partialTicks) {
@@ -42,9 +42,9 @@ public class ImGuiGizmos {
 
     private static void setupGizmos(PoseStack stack, VertexConsumer consumer, Vec3 pos, ParticleEmitter emitter, float partialTicks) {
         if(QuasarClient.editorScreen.localGizmos){
-            stack.mulPose(Vector3f.YP.rotationDegrees((float) emitter.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().y()));
-            stack.mulPose(Vector3f.XP.rotationDegrees((float) emitter.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().x()));
-            stack.mulPose(Vector3f.ZP.rotationDegrees((float) emitter.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().z()));
+            stack.mulPose(Axis.YP.rotationDegrees((float) emitter.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().y()));
+            stack.mulPose(Axis.XP.rotationDegrees((float) emitter.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().x()));
+            stack.mulPose(Axis.ZP.rotationDegrees((float) emitter.getEmitterSettingsModule().getEmissionShapeSettings().getRotation().z()));
         }
         QuasarClient.yGizmo.aabb = new AABB(pos.x - 0.01f, pos.y, pos.z - 0.01f, pos.x + 0.01f, pos.y + 0.5f * emitter.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().length(), pos.z + 0.01f);
         QuasarClient.zGizmo.aabb = new AABB(pos.x - 0.01f, pos.y - 0.01f, pos.z, pos.x + 0.01f, pos.y + 0.01f, pos.z + 0.5f * emitter.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions().length());
@@ -71,9 +71,9 @@ public class ImGuiGizmos {
         Vec3 dimensions = emitter.getEmitterSettingsModule().getEmissionShapeSettings().getDimensions();
         Vec3 rotation = emitter.getEmitterSettingsModule().getEmissionShapeSettings().getRotation();
         RenderSystem.disableCull();
-        stack.mulPose(Vector3f.YP.rotationDegrees((float) rotation.y));
-        stack.mulPose(Vector3f.XP.rotationDegrees((float) rotation.x));
-        stack.mulPose(Vector3f.ZP.rotationDegrees((float) rotation.z));
+        stack.mulPose(Axis.YP.rotationDegrees((float) rotation.y));
+        stack.mulPose(Axis.XP.rotationDegrees((float) rotation.x));
+        stack.mulPose(Axis.ZP.rotationDegrees((float) rotation.z));
         VertexConsumer consumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines());
         Matrix4f pose = stack.last().pose();
         shape.renderShape(stack, consumer, dimensions, rotation);

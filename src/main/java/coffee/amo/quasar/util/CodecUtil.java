@@ -1,7 +1,7 @@
 package coffee.amo.quasar.util;
 
-import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
+import org.joml.Vector4f;
 
 import java.util.List;
 

@@ -34,10 +34,12 @@ public class EmitterModule implements BaseEmitterModule {
      * E.G. rate = 2, count = 1 means 1 particle every 2 ticks
      */
     int rate = 1;
+    public int baseRate = rate;
     /**
      * The number of particles emitted per <rate> ticks
      */
     int count = 1;
+    public int baseCount = count;
 
     /**
      * Whether or not the emitter has completed its lifetime
@@ -59,6 +61,8 @@ public class EmitterModule implements BaseEmitterModule {
         this.loop = loop;
         this.rate = rate;
         this.count = count;
+        this.baseRate = rate;
+        this.baseCount = count;
     }
 
     private EmitterModule(int maxLifetime, boolean loop, int rate, int count) {
@@ -66,6 +70,8 @@ public class EmitterModule implements BaseEmitterModule {
         this.loop = loop;
         this.rate = rate;
         this.count = count;
+        this.baseRate = rate;
+        this.baseCount = count;
     }
 
     /**

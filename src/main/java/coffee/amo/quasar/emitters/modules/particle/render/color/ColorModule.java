@@ -5,11 +5,11 @@ import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderData;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
 import coffee.amo.quasar.util.CodecUtil;
-import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector4f;
 
 public class ColorModule implements RenderModule {
     public static final Codec<ColorModule> CODEC = RecordCodecBuilder.create(instance ->

@@ -4,7 +4,7 @@ import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderData;
 import coffee.amo.quasar.util.ColorGradient;
-import com.mojang.math.Vector4f;
+import org.joml.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.jetbrains.annotations.NotNull;

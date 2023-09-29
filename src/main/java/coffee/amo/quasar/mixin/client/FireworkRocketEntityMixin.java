@@ -16,7 +16,7 @@ public class FireworkRocketEntityMixin {
         FireworkRocketEntity self = (FireworkRocketEntity) (Object) this;
         Vec3 pos = self.position();
 //        ParticleRegistry.runFireworkParticles(new ParticleContext(self.position(), self.getDeltaMovement(), self));
-        self.level.playLocalSound(pos.x, pos.y, pos.z, SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, SoundSource.AMBIENT, 20.0F, 0.95F + self.level.random.nextFloat() * 0.1F, true);
+        self.level().playLocalSound(pos.x, pos.y, pos.z, SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, SoundSource.AMBIENT, 20.0F, 0.95F + self.level().random.nextFloat() * 0.1F, true);
         ci.cancel();
     }
 }

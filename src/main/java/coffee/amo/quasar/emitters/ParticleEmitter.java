@@ -50,24 +50,28 @@ public class ParticleEmitter {
     private Level level;
 //    private Entity linkedEntity;
     QuasarParticleData data;
+    public int particleCount = 0;
 
     public ParticleEmitter(Level level, EmitterModule emitterModule, EmitterSettingsModule emitterSettingsModule) {
         this.level = level;
         this.emitterModule = emitterModule;
         this.emitterSettingsModule = emitterSettingsModule;
         this.data = new QuasarParticleData(emitterSettingsModule.getEmissionParticleSettings(), true, true);
+        this.data.parentEmitter = this;
     }
 
     public ParticleEmitter(EmitterModule emitterModule, EmitterSettingsModule emitterSettingsModule, QuasarParticleData data) {
         this(null, emitterModule, emitterSettingsModule);
         this.data = data;
         data.setParticleSettings(emitterSettingsModule.getEmissionParticleSettings());
+        this.data.parentEmitter = this;
     }
 
     public ParticleEmitter(Level level, EmitterModule emitterModule, EmitterSettingsModule emitterSettingsModule, QuasarParticleData quasarParticleData) {
         this(level, emitterModule, emitterSettingsModule);
         this.data = quasarParticleData;
         data.setParticleSettings(emitterSettingsModule.getEmissionParticleSettings());
+        this.data.parentEmitter = this;
     }
 
     public ParticleEmitter instance(){

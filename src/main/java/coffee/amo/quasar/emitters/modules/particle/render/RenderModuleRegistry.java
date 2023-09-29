@@ -12,7 +12,7 @@ public class RenderModuleRegistry {
 
     public static final Codec<ModuleType<?>> MODULE_MAP_CODEC = Codec.STRING.comapFlatMap(name -> {
         if(!MODULES.containsKey(name)) {
-            return DataResult.error("Update module %s does not exist!".formatted(name));
+            return DataResult.error(() -> "Update module %s does not exist!".formatted(name));
         }
         return DataResult.success(MODULES.get(name));
     }, MODULES.inverse()::get);

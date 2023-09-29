@@ -3,6 +3,7 @@ package coffee.amo.quasar.client.particle;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import coffee.amo.quasar.emitters.ParticleEmitter;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmissionParticleSettings;
 import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
 import coffee.amo.quasar.emitters.modules.particle.init.InitModuleRegistry;
@@ -114,6 +115,7 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
     List<UpdateModule> updateModules = new ArrayList<>();
     List<CollisionModule> collisionModules = new ArrayList<>();
     ParticleRenderType renderType;
+    public ParticleEmitter parentEmitter;
 
 
     public QuasarParticleData(EmissionParticleSettings particleSettings) {
@@ -322,6 +324,7 @@ public class QuasarParticleData implements ICustomParticleData<QuasarParticleDat
         data.spriteData = spriteData;
         data.renderStyle = renderStyle;
         data.renderType = renderType;
+        data.parentEmitter = parentEmitter;
         return data;
     }
 

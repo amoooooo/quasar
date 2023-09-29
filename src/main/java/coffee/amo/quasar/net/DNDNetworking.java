@@ -40,7 +40,7 @@ public class DNDNetworking {
 
     public static <T> void sendToPlayersInRange(ServerPlayer player, T t, double range) {
         CHANNEL.send(PacketDistributor.NEAR.with(() -> {
-            return new PacketDistributor.TargetPoint(player.getX(), player.getY(), player.getZ(), range, player.getLevel().dimension());
+            return new PacketDistributor.TargetPoint(player.getX(), player.getY(), player.getZ(), range, player.level().dimension());
         }), t);
     }
 

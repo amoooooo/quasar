@@ -7,7 +7,6 @@ import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
 import coffee.amo.quasar.emitters.ParticleSystemManager;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.util.CodecUtil;
-import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import imgui.ImGui;

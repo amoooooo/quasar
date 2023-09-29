@@ -2,12 +2,11 @@ package coffee.amo.quasar.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.AABB;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 public class RenderUtil {
     public static void renderLineBoxScreen(PoseStack stack, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float r, float g, float b, float a, float scalar){
@@ -15,7 +14,6 @@ public class RenderUtil {
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.disableTexture();
         stack.pushPose();
 //        stack.translate(0,0,-2);
         Matrix4f m4 = stack.last().pose();
@@ -56,7 +54,6 @@ public class RenderUtil {
         bufferbuilder.vertex(m4, f3, f4, f5).color(r, g, b, a).normal(m3, 0.0F, 0.0F, 1.0F).endVertex();
         tessellator.end();
         stack.popPose();
-        RenderSystem.enableTexture();
         RenderSystem.disableBlend();
         RenderSystem.enableCull();
         RenderSystem.depthMask(true);

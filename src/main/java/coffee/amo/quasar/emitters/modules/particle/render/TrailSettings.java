@@ -4,7 +4,6 @@ import coffee.amo.quasar.fx.Trail;
 import coffee.amo.quasar.registry.AllSpecialTextures;
 import coffee.amo.quasar.util.CodecUtil;
 import coffee.amo.quasar.util.TriFunction;
-import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import imgui.ImGui;
@@ -15,6 +14,7 @@ import imgui.type.ImInt;
 import imgui.type.ImString;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector4f;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +48,7 @@ public class TrailSettings {
     protected Trail.TilingMode tilingMode = Trail.TilingMode.STRETCH;
     protected boolean billboard = true;
     protected boolean parentRotation = false;
+    protected float trailWidthModifierFloat = 1f;
 
     public TrailSettings(int trailFrequency, int trailLength, Vector4f trailColor, BiFunction<Float, Float, Float> trailWidthModifier, ResourceLocation trailTexture, TriFunction<Vector4f, Integer, Vec3, Vector4f> trailPointModifier) {
         this.trailFrequency = trailFrequency;
@@ -62,7 +63,7 @@ public class TrailSettings {
         this.trailFrequency = trailFrequency;
         this.trailLength = trailLength;
         this.trailColor = trailColor;
-        this.trailWidthModifier = (width, ageScale) -> ((float)Math.sin(width * 3.15)/2f) * trailWidthModifier;
+        this.trailWidthModifier = (width, ageScale) -> ((float)Math.sin(width * 3.15)/2f) * trailWidthModifier * trailWidthModifierFloat;
         this.trailTexture = trailTexture;
         this.trailPointModifier = (point, index, velocity) -> point;
         this.tilingMode = tilingMode;
@@ -172,5 +173,8 @@ public class TrailSettings {
         ImBoolean parentRotationBoolean = new ImBoolean(parentRotation);
         ImGui.checkbox("Parent Rotation" + this.hashCode(), parentRotationBoolean);
         parentRotation = parentRotationBoolean.get();
+        ImFloat trailWidthModifierFloat = new ImFloat(this.trailWidthModifierFloat);
+        ImGui.inputFloat("Trail Width Modifier" + this.hashCode(), trailWidthModifierFloat);
+        this.trailWidthModifierFloat = trailWidthModifierFloat.get();
     }
 }

@@ -1,5 +1,6 @@
 package coffee.amo.quasar.registry;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.function.Function;
 
 import static com.mojang.blaze3d.vertex.DefaultVertexFormat.NEW_ENTITY;
+import static com.mojang.blaze3d.vertex.DefaultVertexFormat.PARTICLE;
 
 public class RenderTypeRegistry {
 
@@ -30,6 +32,7 @@ public class RenderTypeRegistry {
         }
 
         public static ShaderInstance slashFade;
+        public static ShaderInstance PARTICLE_ADDITIVE_MULTIPLY;
 
         private static final ShaderStateShard SLASH_FADE = new ShaderStateShard(() -> slashFade);
 
@@ -39,14 +42,21 @@ public class RenderTypeRegistry {
             RenderType.CompositeState rendertype$compositestate = RenderType.CompositeState.builder().setShaderState(SLASH_FADE).setTextureState(new RenderStateShard.TextureStateShard(texture, false, false)).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setCullState(NO_CULL).setWriteMaskState(COLOR_WRITE).setOverlayState(OVERLAY).createCompositeState(true);
             return create("slash_fade", NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, rendertype$compositestate);
         }
+
+        public static RenderType translucentNoCull(ResourceLocation texture) {
+            return RenderType.create("quasar_translucent", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder().setTextureState(new RenderStateShard.TextureStateShard(texture, false, false)).setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER).setWriteMaskState(RenderStateShard.COLOR_WRITE).setCullState(RenderStateShard.NO_CULL).setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY).createCompositeState(false));
+        }
     }
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "quasar", bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ShaderRegistry {
         @SubscribeEvent
         public static void shaderRegistry(RegisterShadersEvent event) throws IOException {
-            event.registerShader(new ShaderInstance(event.getResourceManager(), new ResourceLocation("quasar", "slash_fade"), NEW_ENTITY), shaderInstance -> {
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), new ResourceLocation("quasar", "slash_fade"), NEW_ENTITY), shaderInstance -> {
                 RenderTypes.slashFade = shaderInstance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), new ResourceLocation("quasar", "particle_add"), PARTICLE), shaderInstance -> {
+                RenderTypes.PARTICLE_ADDITIVE_MULTIPLY = shaderInstance;
             });
         }
     }

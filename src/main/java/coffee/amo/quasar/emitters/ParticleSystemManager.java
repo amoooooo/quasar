@@ -2,6 +2,9 @@ package coffee.amo.quasar.emitters;
 
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import coffee.amo.quasar.event.EmitterInstantiationEvent;
+import foundry.veil.optimization.OptimizationUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -16,7 +19,7 @@ public class ParticleSystemManager {
     private Queue<ParticleEmitter> particleEmitters = new ConcurrentLinkedQueue<>();
     private Queue<ParticleEmitter> particleSystemsToRemove = new ConcurrentLinkedQueue<>();
     private Queue<ParticleEmitter> particleSystemsToAdd = new ConcurrentLinkedQueue<>();
-
+    public static int PARTICLE_COUNT = 0;
     public static ParticleSystemManager getInstance() {
         if (instance == null) {
             instance = new ParticleSystemManager();
@@ -71,5 +74,21 @@ public class ParticleSystemManager {
         particleEmitters.removeIf(emitter -> emitter.isComplete);
         particleEmitters.removeAll(particleSystemsToRemove);
         particleSystemsToRemove.clear();
+        tickLimiter();
+    }
+
+    public void tickLimiter() {
+        PARTICLE_COUNT = particleEmitters.stream().mapToInt(emitter -> emitter.particleCount).sum();
+        float delta = (float) (PARTICLE_COUNT - 1000) / 3000;
+        float fpsDelta = (float) Minecraft.getInstance().getFps() / OptimizationUtil.getStableFps();
+        delta = Math.min(delta, fpsDelta);
+        float rate = 1 - delta * 0.66f;
+        particleEmitters.forEach(emitter -> {
+            emitter.emitterModule.setRate((int) Math.max(1, emitter.emitterModule.baseRate * rate));
+            emitter.emitterModule.setCount((int) Math.max(1, emitter.emitterModule.baseCount * rate));
+        });
+        Minecraft.getInstance().player.displayClientMessage(
+                Component.literal("Particles: " + PARTICLE_COUNT),
+                true);
     }
 }

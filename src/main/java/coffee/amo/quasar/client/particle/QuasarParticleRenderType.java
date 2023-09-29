@@ -1,7 +1,6 @@
 package coffee.amo.quasar.client.particle;
 
-import cofh.core.init.CoreShaders;
-import cofh.core.util.helpers.vfx.RenderTypes;
+import coffee.amo.quasar.registry.RenderTypeRegistry;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -31,7 +30,7 @@ public class QuasarParticleRenderType implements ParticleRenderType {
         GL11.glEnable(GL11.GL_BLEND);
 
         //
-        RenderSystem.setShader(() -> CoreShaders.PARTICLE_ADDITIVE_MULTIPLY);
+        RenderSystem.setShader(() -> RenderTypeRegistry.RenderTypes.PARTICLE_ADDITIVE_MULTIPLY);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 

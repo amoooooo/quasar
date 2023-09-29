@@ -6,11 +6,9 @@
   "refmap": "quasar.refmap.json",
   "mixins": [
     "EntityMixin",
-    "client.FireworkRocketEntityMixin",
-    "client.Matrix4fAccessor"
+    "client.FireworkRocketEntityMixin"
   ],
   "client": [
-    "client.CameraMixin",
     "client.EntityModelSetMixin",
     "client.EntityRendererMixin",
     "client.ModelPartMixin",

@@ -2,12 +2,12 @@ package coffee.amo.quasar.editor;
 
 import coffee.amo.quasar.QuasarClient;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

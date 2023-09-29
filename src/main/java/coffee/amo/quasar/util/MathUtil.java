@@ -1,9 +1,10 @@
 package coffee.amo.quasar.util;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.joml.Vector4f;
 
 public class MathUtil {
 
@@ -45,14 +46,14 @@ public class MathUtil {
      * @param Q The quaternion to rotate by
      * @return The rotated vector
      */
-    public static Vec3 rotateQuat(Vec3 V, Quaternion Q)
+    public static Vec3 rotateQuat(Vec3 V, Quaternionf Q)
     {
-        Quaternion q=new Quaternion((float)V.x,(float)V.y,(float)V.z,0.0f);
-        Quaternion Q2 = Q.copy();
+        Quaternionf q=new Quaternionf((float)V.x,(float)V.y,(float)V.z,0.0f);
+        Quaternionf Q2 = new Quaternionf(q);
         q.mul(Q2);
-        Q2.conj();
+        Q2.conjugate();
         Q2.mul(q);
-        return new Vec3(Q2.i(),Q2.j(),Q2.k());
+        return new Vec3(Q2.x(),Q2.y(),Q2.z());
     }
     /**
      * Rotates a vector by the inverse of a quaternion
@@ -61,22 +62,17 @@ public class MathUtil {
      * @param Q The quaternion to rotate by
      * @return The rotated vector
      */
-    public static Vec3 rotateQuatReverse(Vec3 V, Quaternion Q)
+    public static Vec3 rotateQuatReverse(Vec3 V, Quaternionf Q)
     {
-        Quaternion q=new Quaternion((float)V.x,(float)V.y,(float)V.z,0.0f);
-        Quaternion Q2 = Q.copy();
-        Q2.conj();
+        Quaternionf q=new Quaternionf((float)V.x,(float)V.y,(float)V.z,0.0f);
+        Quaternionf Q2 = new Quaternionf(q);
+        Q2.conjugate();
         q.mul(Q2);
-        Q2.conj();
+        Q2.conjugate();
         Q2.mul(q);
-        return new Vec3(Q2.i(),Q2.j(),Q2.k());
+        return new Vec3(Q2.x(),Q2.y(),Q2.z());
     }
 
-    public static Quaternion rotationBetween(Vec3 cameraToTop, Vec3 cameraToBottom) {
-        Vector3f ax = new Vector3f(cameraToTop.cross(cameraToBottom));
-        float angle = (float) Math.acos(cameraToTop.dot(cameraToBottom));
-        return ax.rotation(angle);
-    }
 
     public static int colorFromVec4f(Vector4f color) {
         float r = color.x();

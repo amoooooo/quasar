@@ -1,5 +1,6 @@
 package coffee.amo.quasar.client.particle;
 
+import coffee.amo.quasar.emitters.ParticleEmitter;
 import coffee.amo.quasar.emitters.modules.particle.init.InitModule;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderData;
 import coffee.amo.quasar.emitters.modules.particle.render.TrailModule;
@@ -12,17 +13,12 @@ import coffee.amo.quasar.emitters.modules.particle.render.RenderModule;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModule;
 import coffee.amo.quasar.emitters.modules.particle.update.forces.AbstractParticleForce;
 import coffee.amo.quasar.fx.Trail;
+import coffee.amo.quasar.registry.RenderTypeRegistry;
 import coffee.amo.quasar.util.MathUtil;
-import cofh.core.init.CoreShaders;
-import cofh.core.util.helpers.vfx.Color;
-import cofh.core.util.helpers.vfx.RenderTypes;
-import cofh.core.util.helpers.vfx.VFXHelper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector4f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -40,6 +36,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,7 +78,7 @@ public class QuasarParticle extends Particle {
             RenderSystem.enableBlend();
 
             //
-            RenderSystem.setShader(() -> CoreShaders.PARTICLE_ADDITIVE_MULTIPLY);
+            RenderSystem.setShader(() -> RenderTypeRegistry.RenderTypes.PARTICLE_ADDITIVE_MULTIPLY);
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
@@ -131,6 +129,7 @@ public class QuasarParticle extends Particle {
     SpriteData spriteData = SpriteData.BLANK;
     ParticleRenderType renderType = RENDER_TYPE_FLAT;
     float speed;
+    ParticleEmitter parentEmitter;
 
     public QuasarParticle(QuasarParticleData data, ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ) {
         super(world, x, y, z);
@@ -150,7 +149,7 @@ public class QuasarParticle extends Particle {
         this.subEmitters = data.subEmitters;
         this.trailModules = data.initModules.stream().filter(m -> m instanceof TrailModule).map(m -> (TrailModule) m).collect(Collectors.toList());
         this.scale = data.particleSettings.getParticleSize();
-        this.lifetime = data.particleSettings.getParticleLifetime();
+        this.lifetime = data.particleSettings.getParticleLifetime() + 1;
         this.dataId = data.registryId;
         renderStyle = data.renderStyle;
         spriteData = data.spriteData;
@@ -160,6 +159,8 @@ public class QuasarParticle extends Particle {
         this.oRoll = this.roll;
         this.renderType = data.renderType;
         this.speed = data.particleSettings.getParticleSpeed();
+        this.parentEmitter = data.parentEmitter;
+        this.parentEmitter.particleCount++;
     }
 
     public QuasarParticle() {
@@ -289,11 +290,14 @@ public class QuasarParticle extends Particle {
 
         // parent tick
         // end parent tick
-
+        if(age == lifetime-1){
+            this.remove();
+        }
     }
 
     @Override
     public void remove() {
+        parentEmitter.particleCount--;
         super.remove();
     }
 
@@ -393,7 +397,7 @@ public class QuasarParticle extends Particle {
             trails.forEach(trail -> {
                 trail.pushRotatedPoint(new Vec3(lX, lY, lZ), new Vec3(lerpedYaw, lerpedPitch, lerpedRoll));
                 QuasarClient.delayedRenders.add(ps -> {
-                    trail.render(ps, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypes.translucentNoCull(trail.getTexture())), emissive ? LightTexture.FULL_BRIGHT : getLightColor(partialTicks));
+                    trail.render(ps, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypeRegistry.RenderTypes.translucentNoCull(trail.getTexture())), emissive ? LightTexture.FULL_BRIGHT : getLightColor(partialTicks));
                 });
             });
         }
@@ -537,7 +541,7 @@ public class QuasarParticle extends Particle {
                     QuasarParticle.PLANE[3]
             };
 
-            Quaternion faceCameraRotation = Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation();
+            Quaternionf faceCameraRotation = Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation();
             RenderSystem.setShaderTexture(0, particle.spriteData.sprite);
             // turn quat into pitch and yaw
             for (int j = 0; j < 4; j++) {

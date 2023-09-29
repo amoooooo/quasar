@@ -8,6 +8,7 @@ import coffee.amo.quasar.editor.ImGuiEditorScreen;
 import coffee.amo.quasar.editor.ImGuiGizmos;
 import coffee.amo.quasar.emitters.ParticleEmitterJsonListener;
 import coffee.amo.quasar.emitters.ParticleEmitterRegistry;
+import coffee.amo.quasar.emitters.ParticleSystemManager;
 import coffee.amo.quasar.emitters.anchors.AnchorPoint;
 import coffee.amo.quasar.emitters.modules.emitter.settings.EmitterSettingsJsonListener;
 import coffee.amo.quasar.emitters.modules.emitter.settings.ParticleSettingsJsonListener;
@@ -15,11 +16,12 @@ import coffee.amo.quasar.emitters.modules.emitter.settings.ShapeSettingsJsonList
 import coffee.amo.quasar.emitters.modules.particle.init.InitModuleJsonListener;
 import coffee.amo.quasar.emitters.modules.particle.render.RenderModuleJsonListener;
 import coffee.amo.quasar.emitters.modules.particle.update.UpdateModuleJsonListener;
+import coffee.amo.quasar.fx.Line;
 import coffee.amo.quasar.fx.Trail;
 import coffee.amo.quasar.registry.AllParticleTypes;
 import coffee.amo.quasar.registry.AllSpecialTextures;
+import coffee.amo.quasar.registry.RenderTypeRegistry;
 import coffee.amo.quasar.util.ModelPartExtension;
-import cofh.core.util.helpers.vfx.RenderTypes;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.KeyMapping;
@@ -64,6 +66,13 @@ public class QuasarClient {
     public static Trail test = new Trail(0xFFFFFFFF, (ageScale) -> ageScale);
     public static AnchorPoint LOCAL_PLAYER_ANCHOR = new AnchorPoint(new ResourceLocation("quasar", "local_player_anchor"));
 
+    public static Line TEST_LINE = new Line(
+            new Vec3[]{
+                    new Vec3(0,-55,0),
+                    new Vec3(3, -55, 0),
+                    new Vec3(3, -55, 3),
+                    new Vec3(0, -55, 3),
+            }, 0xFFFFFFFF, (ageScale) -> 0.25f);
     @SubscribeEvent
     public static void renderTranslucent(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
@@ -72,7 +81,11 @@ public class QuasarClient {
             Vec3 pos = event.getCamera().getPosition();
             stack.translate(-pos.x, -pos.y, -pos.z);
             delayedRenders.forEach(consumer -> consumer.accept(stack));
-            test.render(stack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypes.translucentNoCull(new ResourceLocation("quasar:textures/special/flamestexture.png"))), LightTexture.FULL_BRIGHT);
+//            test.render(stack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypeRegistry.RenderTypes.translucentNoCull(new ResourceLocation("quasar:textures/special/flamestexture.png"))), LightTexture.FULL_BRIGHT);
+//            TEST_LINE.setBillboard(true);
+//            TEST_LINE.setCurveMode(Line.CurveMode.BEZIER);
+//            TEST_LINE.setFrequency(9);
+//            TEST_LINE.render(stack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypeRegistry.RenderTypes.translucentNoCull(new ResourceLocation("quasar:textures/special/blank.png"))), LightTexture.FULL_BRIGHT);
             stack.popPose();
         }
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
@@ -89,6 +102,9 @@ public class QuasarClient {
         modEventBus.addListener(QuasarClient::clientReloadListeners);
         modEventBus.addListener(QuasarClient::registerKeys);
         ParticleEmitterRegistry.bootstrap();
+        TEST_LINE.setCurveMode(Line.CurveMode.BEZIER);
+        TEST_LINE.setTexture(new ResourceLocation("quasar:textures/special/blank.png"));
+        TEST_LINE.setLength(5000);
     }
 
     public static void clientReloadListeners(RegisterClientReloadListenersEvent event) {
@@ -122,12 +138,6 @@ public class QuasarClient {
     public static void onRenderTick(TickEvent.RenderTickEvent event) {
         if(Minecraft.getInstance().player != null){
             Player player = Minecraft.getInstance().player;
-            test.setLength(20);
-            test.setBillboard(true);
-            test.setTexture(new ResourceLocation("quasar:textures/special/blank.png"));
-            test.setTilingMode(Trail.TilingMode.STRETCH);
-            test.setFrequency(1);
-            test.setParentRotation(false);
             LivingEntityRenderer<?, ?> renderer = (LivingEntityRenderer<?, ?>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
             Class<LivingEntityRenderer<?, ?>> clazz = (Class<LivingEntityRenderer<?, ?>>) renderer.getClass();
             EntityModel<LivingEntity> model = (EntityModel<LivingEntity>) clazz.cast(renderer).getModel();
@@ -145,7 +155,6 @@ public class QuasarClient {
             }
             if(editorScreen.currentlySelectedEntity != null){
                 AnchorPoint.TEST_POINT.updatePosition(editorScreen.currentlySelectedEntity);
-                test.pushPoint(AnchorPoint.TEST_POINT.getWorldOffset(editorScreen.currentlySelectedEntity));
             }
             if (editorScreen.currentlySelectedEmitterInstance != null) {
                 if (currentlySelectedGizmo != null) {

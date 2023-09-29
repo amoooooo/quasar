@@ -1,7 +1,6 @@
 package coffee.amo.quasar.util;
 
-import cofh.lib.util.helpers.MathHelper;
-import com.mojang.math.Vector4f;
+import org.joml.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Mth;

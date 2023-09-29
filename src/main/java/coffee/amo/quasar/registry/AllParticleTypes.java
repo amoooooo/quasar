@@ -1,9 +1,6 @@
 package coffee.amo.quasar.registry;
 
-import coffee.amo.quasar.ParticleRegistry;
-import coffee.amo.quasar.client.CrackParticle;
 import coffee.amo.quasar.client.particle.QuasarParticleData;
-import coffee.amo.quasar.client.FogParticle;
 import coffee.amo.quasar.emitters.ICustomParticleData;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -34,8 +31,6 @@ public enum AllParticleTypes {
 
     @OnlyIn(Dist.CLIENT)
     public static void registerFactories(RegisterParticleProvidersEvent event) {
-        event.register(ParticleRegistry.FOG.get(), FogParticle::factory);
-        event.register(ParticleRegistry.CRACK.get(), CrackParticle.Factory::new);
         for (AllParticleTypes particle : values())
             particle.entry.registerFactory(event);
     }

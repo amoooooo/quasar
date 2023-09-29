@@ -3,11 +3,11 @@ package coffee.amo.quasar.emitters.modules.particle.init;
 import coffee.amo.quasar.client.particle.QuasarParticle;
 import coffee.amo.quasar.emitters.modules.ModuleType;
 import coffee.amo.quasar.util.CodecUtil;
-import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector4f;
 
 public class InitColorModule implements InitModule {
     public static final Codec<InitColorModule> CODEC = RecordCodecBuilder.create(instance ->

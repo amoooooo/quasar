@@ -4,10 +4,8 @@ import coffee.amo.quasar.util.RenderUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -29,10 +27,10 @@ import java.util.List;
 public class AnchorPoint {
     public static AnchorPoint TEST_POINT = new AnchorPoint(new ResourceLocation("quasar", "test_point"));
     private final ResourceLocation id;
-    public Vector3f localOffset = Vector3f.ZERO.copy();
-    public Vector3f worldOffset = Vector3f.ZERO.copy();
+    public Vector3f localOffset = new Vector3f(0,0,0);
+    public Vector3f worldOffset = new Vector3f(0,0,0);
     public List<ModelPart> modelParts = null;
-    public Vector3f origin = Vector3f.ZERO.copy();
+    public Vector3f origin = new Vector3f(0,0,0);
     public Vector4f transformMatrix = new Vector4f();
 
     public AnchorPoint(ResourceLocation id) {
@@ -64,7 +62,7 @@ public class AnchorPoint {
         }
         Vector4f offset = new Vector4f(localOffset.x(), localOffset.y(), localOffset.z(), 1);
 //        stack.mulPose(Vector3f.YP.rotationDegrees(entity.getYRot()));
-        offset.transform(stack.last().pose());
+        offset = stack.last().pose().transform(offset);
         transformMatrix = offset;
     }
 
